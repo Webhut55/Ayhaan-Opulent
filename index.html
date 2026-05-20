@@ -62,8 +62,9 @@ button { font-family: var(--font-body); cursor: pointer; border: none; backgroun
 .navbar .container { display: flex; justify-content: space-between; align-items: center; }
 
 .nav-brand { text-align: center; flex-grow: 1; }
+.nav-brand a { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
 .nav-logo-text { font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 3px; text-transform: uppercase; color: var(--text-main); }
-.nav-logo { max-height: 45px; }
+.nav-logo { width: 45px; height: 45px; object-fit: cover; border-radius: 50%; }
 
 .nav-links { flex-basis: 20%; display: flex; justify-content: flex-end; }
 .nav-left { flex-basis: 20%; }
@@ -317,8 +318,8 @@ th { font-family: var(--font-body); font-weight: 700; font-size: 0.8rem; text-tr
             </div>
             <div class="nav-brand">
                 <a href="index.html">
-                    <span class="nav-logo-text" id="storefrontLogoText">AYHAAN OPULENT</span>
                     <img id="storefrontLogoImg" src="" alt="Ayhaan Opulent Logo" class="nav-logo hidden">
+                    <span class="nav-logo-text" id="storefrontLogoText">AYHAAN OPULENT</span>
                 </a>
             </div>
             <nav class="nav-links">
@@ -411,14 +412,11 @@ th { font-family: var(--font-body); font-weight: 700; font-size: 0.8rem; text-tr
         onValue(logoRef, (snapshot) => {
             const logoUrl = snapshot.val();
             const logoImg = document.getElementById('storefrontLogoImg');
-            const logoText = document.getElementById('storefrontLogoText');
             if (logoUrl) {
                 logoImg.src = logoUrl;
                 logoImg.classList.remove('hidden');
-                logoText.classList.add('hidden');
             } else {
                 logoImg.classList.add('hidden');
-                logoText.classList.remove('hidden');
             }
         });
 
