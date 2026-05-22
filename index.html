@@ -317,9 +317,12 @@ th { font-family: var(--font-body); font-weight: 700; font-size: 0.8rem; text-tr
                 <!-- Spacer for center alignment -->
             </div>
             <div class="nav-brand">
-                <a href="index.html">
-                    <img id="storefrontLogoImg" src="" alt="Ayhaan Opulent Logo" class="nav-logo hidden">
-                    <span class="nav-logo-text" id="storefrontLogoText">AYHAAN OPULENT</span>
+                <a href="index.html" style="flex-direction: column; gap: 2px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <img id="storefrontLogoImg" src="" alt="Ayhaan Opulent Logo" class="nav-logo hidden">
+                        <span class="nav-logo-text" id="storefrontLogoText">AYHAAN OPULENT</span>
+                    </div>
+                    <span style="font-size: 0.65rem; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase;">[powered by webhut]</span>
                 </a>
             </div>
             <nav class="nav-links">
@@ -370,7 +373,7 @@ th { font-family: var(--font-body); font-weight: 700; font-size: 0.8rem; text-tr
                     <span>Total</span>
                     <span id="cartTotalValue">₹0</span>
                 </div>
-                <button class="btn" id="checkoutWhatsappBtn">Checkout via WhatsApp</button>
+                <button class="btn" id="checkoutWhatsappBtn">Checkout</button>
             </div>
         </div>
     </div>
