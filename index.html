@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayhaan Opulent | Premium Wholesale Jewellery</title>
+    <meta name="description" content="Discover exquisite wholesale jewellery with Ayhaan Opulent.">
+    <link rel="stylesheet" href="./css/style.css?v=2">
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-left">
+                <!-- Spacer for center alignment -->
+            </div>
+            <div class="nav-brand">
+                <a href="#">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <img id="storefrontLogoImg" src="" alt="Ayhaan Opulent Logo" class="nav-logo hidden">
+                        <span class="nav-logo-text" id="storefrontLogoText">AYHAAN OPULENT</span>
+                    </div>
+                    <span style="font-size: 0.65rem; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase;">powered by webhut</span>
+                </a>
+            </div>
+            <nav class="nav-links">
+                <button id="openBagBtn" class="bag-btn" aria-label="Open Shopping Bag">
+                    Bag (<span class="bag-count" id="bagCount">0</span>)
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="heroBanner">
+        <div class="container hero-content">
+            <h1 id="heroTitle">The Opulence Collection.</h1>
+            <p>Explore our exclusive collection of premium wholesale jewellery, meticulously crafted for perfection.</p>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section container" id="categoriesWrapper" style="display: none;">
+        <h2 class="section-title">Shop by Category</h2>
+        <div class="category-grid" id="categoryGrid">
+            <!-- Categories injected here -->
+        </div>
+    </section>
+
+    <!-- Main Products Section -->
+    <main class="products-section container">
+        <h2 class="section-title">New Arrivals</h2>
+        <div class="product-grid" id="productGrid">
+            <!-- Product Cards will be dynamically injected here -->
+            <p style="text-align: center; width: 100%; color: var(--text-muted); font-size: 0.9rem; letter-spacing: 1px;">Loading magnificent pieces...</p>
+        </div>
+    </main>
+
+    <!-- Shopping Bag Modal -->
+    <div class="modal-overlay" id="bagModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Your Bag</h2>
+                <button class="close-btn" id="closeBagBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="bagItemsContainer">
+                <p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Your bag is currently empty.</p>
+            </div>
+            <div class="modal-footer">
+                <div class="cart-total">
+                    <span>Total</span>
+                    <span id="cartTotalValue">₹0</span>
+                </div>
+                <button class="btn" id="checkoutWhatsappBtn">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toasts -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://aayhan-database-default-rtdb.firebaseio.com"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.showToast = function(message, type = 'info') {
+            let container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+
+        // --- Dynamic Logo & Hero ---
+        onValue(ref(db, 'branding/logo'), (snapshot) => {
+            const logoUrl = snapshot.val();
+            const logoImg = document.getElementById('storefrontLogoImg');
+            const logoText = document.getElementById('storefrontLogoText');
+            if (logoUrl) {
+                logoImg.src = logoUrl;
+                logoImg.classList.remove('hidden');
+                logoText.classList.add('hidden');
+            } else {
+                logoImg.classList.add('hidden');
+                logoText.classList.remove('hidden');
+            }
+        });
+
+        onValue(ref(db, 'branding/hero'), (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                if (data.image) {
+                    document.getElementById('heroBanner').style.backgroundImage = `url('${data.image}')`;
+                }
+                if (data.title) {
+                    document.getElementById('heroTitle').innerText = data.title;
+                }
+            }
+        });
+
+        // --- Categories Grid ---
+        const categoriesRef = ref(db, 'categories');
+        onValue(categoriesRef, (snapshot) => {
+            const categoriesContainer = document.getElementById('categoryGrid');
+            const wrapper = document.getElementById('categoriesWrapper');
+            categoriesContainer.innerHTML = '';
+            
+            const data = snapshot.val();
+            window.allCategories = data || {};
+            
+            if (!data) {
+                wrapper.style.display = 'none';
+                return;
+            }
+
+            wrapper.style.display = 'block';
+            Object.entries(data).forEach(([id, cat]) => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.innerHTML = `
+                    <img src="${cat.image}" alt="${cat.name}" class="category-img">
+                    <div class="category-label">${cat.name}</div>
+                `;
+                categoriesContainer.appendChild(card);
+            });
+        });
+
+        // --- Cart Logic ---
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const WHATSAPP_NUMBER = '+91 8590529249';
+
+        function updateCartUI() {
+            const bagCount = document.getElementById('bagCount');
+            const bagItemsContainer = document.getElementById('bagItemsContainer');
+            const cartTotalValue = document.getElementById('cartTotalValue');
+            
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            bagCount.innerText = totalCount;
+
+            if (cart.length === 0) {
+                bagItemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Your bag is currently empty.</p>';
+                cartTotalValue.innerText = '₹0';
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                html += `
+                    <div class="cart-item">
+                        <img src="${item.img}" alt="${item.name}" class="cart-item-img">
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.name}</div>
+                            <div class="cart-item-price">₹${item.price} x ${item.quantity}</div>
+                            <button class="btn" onclick="removeFromCart(${index})" style="padding:0; text-align:left; color:var(--danger); border:none; background:none; font-size: 0.75rem; max-width: auto; letter-spacing: 0;">Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            bagItemsContainer.innerHTML = html;
+            cartTotalValue.innerText = `₹${total}`;
+        }
+
+        window.addToCart = function(id, name, price, img) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id, name, price, img, quantity: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+            window.showToast(`${name} added to your bag.`, 'success');
+        };
+
+        window.removeFromCart = function(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+            window.showToast('Item removed from bag.', 'info');
+        }
+
+        window.buyNow = function(name, price) {
+            if (price < 500) {
+                window.showToast('Minimum purchase value is ₹500. Please add to bag to combine items.', 'error');
+                return;
+            }
+            const text = `Hello Ayhaan Opulent! I would like to instantly buy:\n- ${name} (₹${price})\nIs it available?`;
+            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        };
+
+        updateCartUI();
+
+        // --- Modal Logic ---
+        const bagModal = document.getElementById('bagModal');
+        document.getElementById('openBagBtn').addEventListener('click', () => {
+            bagModal.classList.add('active');
+        });
+        document.getElementById('closeBagBtn').addEventListener('click', () => {
+            bagModal.classList.remove('active');
+        });
+
+        // --- Product Grid (Categorized Carousels FOSA Style) ---
+        const productsRef = ref(db, 'products');
+        onValue(productsRef, (snapshot) => {
+            const productsContainer = document.getElementById('productGrid');
+            productsContainer.innerHTML = '';
+            productsContainer.className = ''; // remove old grid class
+            
+            const data = snapshot.val();
+            if (!data) {
+                productsContainer.innerHTML = '<p style="text-align:center; width:100%; color: var(--text-muted);">No products available currently.</p>';
+                return;
+            }
+
+            const byCategory = {};
+            Object.entries(data).forEach(([id, p]) => {
+                const catId = p.categoryId || 'uncategorized';
+                if (!byCategory[catId]) byCategory[catId] = [];
+                byCategory[catId].push({ id, ...p });
+            });
+
+            const allCategories = window.allCategories || {};
+
+            Object.entries(byCategory).forEach(([catId, items]) => {
+                const catName = allCategories[catId] ? allCategories[catId].name : 'Premium Collection';
+                
+                const block = document.createElement('div');
+                block.className = 'category-block';
+                
+                let cardsHtml = '';
+                items.forEach(prod => {
+                    const isOutOfStock = prod.stock <= 0;
+                    cardsHtml += `
+                        <div class="product-card">
+                            <div class="product-img-wrapper">
+                                <img src="${prod.image}" alt="${prod.name}" class="product-img" loading="lazy">
+                                ${!isOutOfStock ? '<div class="sale-badge">SALE</div>' : ''}
+                                ${isOutOfStock ? '<div class="out-of-stock-overlay"><span class="out-of-stock-text">Sold Out</span></div>' : ''}
+                                ${!isOutOfStock ? `
+                                <button class="quick-add-btn" onclick="addToCart('${prod.id}', '${prod.name.replace(/'/g, "\\'")}', ${prod.price}, '${prod.image}')" title="Add to bag">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/><line x1="12" y1="13" x2="12" y2="19"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
+                                </button>
+                                ` : ''}
+                            </div>
+                            <div class="product-title">${prod.name}</div>
+                            <div class="product-price">₹${prod.price}</div>
+                        </div>
+                    `;
+                });
+
+                block.innerHTML = `
+                    <div class="category-block-header">
+                        <h2>Our Premium ${catName}</h2>
+                        <a href="#">View All</a>
+                    </div>
+                    <div class="product-carousel">
+                        ${cardsHtml}
+                    </div>
+                `;
+                productsContainer.appendChild(block);
+            });
+        });
+
+        // --- Bulk WhatsApp Checkout ---
+        document.getElementById('checkoutWhatsappBtn').addEventListener('click', () => {
+            if (cart.length === 0) {
+                window.showToast('Your bag is empty!', 'error');
+                return;
+            }
+
+            let grandTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            if (grandTotal < 500) {
+                window.showToast(`Minimum order value is ₹500. Your current total is ₹${grandTotal}.`, 'error');
+                return;
+            }
+
+            let text = "Hello Ayhaan Opulent! I would like to place an order for the following items:\n\n";
+            let calculatedTotal = 0;
+            
+            cart.forEach((item, i) => {
+                const itemTotal = item.price * item.quantity;
+                calculatedTotal += itemTotal;
+                text += `${i + 1}. ${item.name} x${item.quantity} - ₹${itemTotal}\n`;
+            });
+            
+            text += `\n*Grand Total: ₹${calculatedTotal}*\n\nPlease confirm availability and payment details.`;
+            
+            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            
+            cart = [];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+            bagModal.classList.remove('active');
+            window.showToast('Redirecting to WhatsApp...', 'success');
+        });
+    </script>
+</body>
+</html>
