@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AYHAAN OPULENT — Fine Anti-Tarnish Jewelry</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -32,7 +33,7 @@
     -webkit-font-smoothing:antialiased;
     overflow-x:hidden;
   }
-  img{max-width:100%; display:block;}
+  img{max-width:100%; display:block; content-visibility: auto;}
   a{text-decoration:none; color:inherit;}
   button{font-family:inherit; cursor:pointer; border:none; background:none;}
   ul{list-style:none;}
@@ -54,6 +55,7 @@
     display:flex;
     white-space:nowrap;
     animation:scrollLeft 22s linear infinite;
+    will-change: transform;
   }
   .announce-track span{
     padding:0 2.5rem;
@@ -70,8 +72,9 @@
   /* ---------- Header ---------- */
   header.site{
     position:sticky; top:0; z-index:200;
-    background:rgba(255,255,255,.92);
-    backdrop-filter:blur(10px);
+    background:rgba(255,255,255,.95);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
     border-bottom:1px solid var(--line);
   }
   .header-inner{
@@ -176,10 +179,11 @@
   }
   .hero-slide{
     position:absolute; inset:0;
-    opacity:0; transition:opacity 1s ease;
+    opacity:0; transition:opacity .8s ease-in-out;
     display:flex; align-items:flex-end;
+    pointer-events: none;
   }
-  .hero-slide.active{opacity:1; z-index: 2;}
+  .hero-slide.active{opacity:1; z-index: 2; pointer-events: auto;}
   .hero-slide img{
     position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
     filter:brightness(.62);
@@ -239,9 +243,12 @@
   /* ---------- Section shell ---------- */
   section{padding:5rem 2rem;}
   .section-inner{max-width:1400px; margin:0 auto;}
-  .section-head{text-align:center; max-width:560px; margin:0 auto 3rem;}
-  .section-head .eyebrow{font-size:.68rem; letter-spacing:.3em; text-transform:uppercase; color:var(--gold-deep); font-weight:700; margin-bottom:.7rem; display:block;}
-  .section-head h2{font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem, 3vw, 2.5rem); margin-bottom:.7rem;}
+  .grid-toolbar{
+    display:flex; justify-content:space-between; align-items:baseline;
+    max-width:1400px; margin:0 auto 2rem; padding:0 2rem;
+    flex-wrap:wrap; gap:1rem;
+  }
+  .grid-toolbar h2{font-family:var(--serif); font-weight:500; font-size:1.7rem;}
 
   /* ---------- Category pills ---------- */
   .cat-scroll{
@@ -261,20 +268,14 @@
   .cat-pill span{font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--charcoal-soft);}
 
   /* ---------- Product Grid ---------- */
-  .grid-toolbar{
-    display:flex; justify-content:space-between; align-items:baseline;
-    max-width:1400px; margin:0 auto 2rem; padding:0 2rem;
-    flex-wrap:wrap; gap:1rem;
-  }
-  .grid-toolbar h2{font-family:var(--serif); font-weight:500; font-size:1.7rem;}
-  .grid-toolbar a{font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:var(--gold-deep); border-bottom:1px solid var(--gold-deep); padding-bottom:2px;}
   .product-grid{
     display:grid; grid-template-columns:repeat(4, 1fr); gap:1.8rem 1.5rem;
     max-width:1400px; margin:0 auto; padding:0 2rem;
   }
   .product-card{position:relative; background:var(--white);}
   .product-media{position:relative; aspect-ratio:4/5; overflow:hidden; background:var(--off-white); border:1px solid var(--line);}
-  .product-media img{width:100%; height:100%; object-fit:cover; transition:opacity .5s var(--ease), transform .6s var(--ease);}
+  .product-media img{width:100%; height:100%; object-fit:cover; transition:transform .5s var(--ease);}
+  .product-card:hover .product-media img{transform:scale(1.03);}
   .badge-pill{
     position:absolute; top:.7rem; left:.7rem; background:var(--white); color:var(--charcoal);
     font-size:.6rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
@@ -304,14 +305,13 @@
 
   /* ---------- Footer ---------- */
   footer{background:var(--charcoal); color:#D8D2C6; padding:4.5rem 2rem 2rem;}
-  .footer-grid{max-width:1400px; margin:0 auto; display:grid; grid-template-columns:2fr 1.2fr 1fr 1fr; gap:3rem; padding-bottom:3rem; border-bottom:1px solid rgba(255, 255, 255, 0.1);}
+  .footer-grid{max-width:1400px; margin:0 auto; display:grid; grid-template-columns:2fr 1.2fr 1fr; gap:3rem; padding-bottom:3rem; border-bottom:1px solid rgba(255, 255, 255, 0.1);}
   .footer-grid .brand{color:var(--gold-pale); text-align:left; font-size:1.4rem;}
   .footer-grid p{font-size:.82rem; line-height:1.7; color:#A79E90; margin-top:1rem; font-weight:300; max-width:280px;}
   .footer-grid h5{font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:1.2rem; font-weight:700;}
   .footer-grid ul li{margin-bottom:.7rem;}
   .footer-grid ul a{font-size:.82rem; color:#C7C0B2; transition:color .2s;}
   .footer-grid ul a:hover{color:var(--gold);}
-  .footer-bottom{max-width:1400px; margin:0 auto; padding-top:1.6rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem; font-size:.72rem; color:#807A6E;}
 
   /* ---------- Cart Drawer ---------- */
   .overlay{position:fixed; inset:0; background:rgba(158, 106, 104,.5); opacity:0; pointer-events:none; transition:opacity .3s var(--ease); z-index:300;}
@@ -329,7 +329,6 @@
   .cart-line img{width:70px; height:88px; object-fit:cover; border:1px solid var(--line);}
   .cart-line-info{flex:1; display:flex; flex-direction:column;}
   .cart-line-info h4{font-family:var(--serif); font-size:.92rem; font-weight:600; margin-bottom:.2rem;}
-  .cart-line-info .cat{font-size:.65rem; color:var(--gold-deep); text-transform:uppercase; letter-spacing:.08em; font-weight:700; margin-bottom:.4rem;}
   .cart-line-bottom{display:flex; align-items:center; justify-content:space-between; margin-top:auto;}
   .qty-control{display:flex; align-items:center; border:1px solid var(--line);}
   .qty-control button{width:24px; height:24px; font-size:.9rem;}
@@ -348,11 +347,11 @@
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
   
-  .spinner-wrap{position:fixed; inset:0; background:var(--off-white); z-index:500; display:flex; align-items:center; justify-content:center; transition:opacity .4s var(--ease);}
-  .spinner{width:34px; height:34px; border-radius:50%; border:2px solid var(--line); border-top-color:var(--gold-deep); animation:spin .8s linear infinite;}
+  .spinner-wrap{position:fixed; inset:0; background:var(--off-white); z-index:500; display:flex; align-items:center; justify-content:center; transition:opacity .3s var(--ease);}
+  .spinner{width:34px; height:34px; border-radius:50%; border:2px solid var(--line); border-top-color:var(--gold-deep); animation:spin .6s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
-  /* ---------- Mobile ---------- */
+  /* ---------- Responsive Queries ---------- */
   @media (max-width: 980px){
     .product-grid{grid-template-columns:repeat(2,1fr); gap:1.2rem 1rem;}
     .value-grid{grid-template-columns:repeat(2,1fr); gap:2.4rem 1rem;}
@@ -398,7 +397,6 @@
   </div>
 </div>
 
-<!-- Header -->
 <header class="site">
   <div class="header-inner">
     <div class="header-left"></div>
@@ -411,37 +409,33 @@
       </button>
     </div>
     <nav class="main-nav" id="mainNav">
-      <!-- Categories dynamically loaded here -->
-      <a href="#collections" data-cat="all">All Collections</a>
+      <a data-cat="all">All Collections</a>
     </nav>
   </div>
 </header>
 
-<!-- Hero Section -->
 <section class="hero" style="padding:0;" id="heroContainer">
-    <!-- Slides dynamically injected here -->
+    <div class="hero-slide active" data-slide="0">
+      <img src="https://placehold.co/1600x900/2a2622/c5a059?text=AYHAAN+OPULENT" alt="Default">
+      <div class="hero-content">
+        <a href="#collections" class="btn-gold">Shop Collection</a>
+      </div>
+    </div>
 </section>
 
-<!-- Category Pills -->
 <section style="padding-bottom:2rem;">
   <div class="section-inner">
-    <div class="cat-scroll" id="catScroll">
-      <!-- Pills dynamically loaded here -->
-    </div>
+    <div class="cat-scroll" id="catScroll"></div>
   </div>
 </section>
 
-<!-- Main Collections -->
 <section id="collections">
   <div class="grid-toolbar">
     <h2 id="collectionTitle">All Collections</h2>
   </div>
-  <div class="product-grid" id="productGrid">
-      <!-- Products dynamically loaded here -->
-  </div>
+  <div class="product-grid" id="productGrid"></div>
 </section>
 
-<!-- Value Strip -->
 <section class="value-strip">
   <div class="value-grid">
     <div class="value-item">
@@ -462,7 +456,6 @@
   </div>
 </section>
 
-<!-- Footer -->
 <footer>
   <div class="footer-grid">
     <div>
@@ -484,7 +477,6 @@
   </div>
 </footer>
 
-<!-- Cart Drawer -->
 <div class="overlay" id="overlay"></div>
 <aside class="cart-drawer" id="cartDrawer">
   <div class="cart-head">
@@ -500,51 +492,50 @@
   </div>
   <div class="cart-foot">
     <div class="cart-subtotal"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
-    <p>Complete order via WhatsApp. Minimal order amount is ₹1000.</p>
-    <button id="checkoutBtn" class="btn-dark" style="width:100%; justify-content:center;">Checkout via WhatsApp</button>
+    <p>Complete your order securely online. Minimum order amount is ₹1000.</p>
+    <button id="checkoutBtn" class="btn-dark" style="width:100%; justify-content:center;">Proceed to Checkout</button>
   </div>
 </aside>
 
 <div class="toast" id="toast">Added to bag</div>
 
-<!-- Supabase Client -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script>
-(async function(){
-  const WHATSAPP_NUM = "918590529249";
+window.addEventListener('DOMContentLoaded', async () => {
   const SUPABASE_URL = "https://orjxoslyjonedljqnzgu.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yanhvc2x5am9uZWRsanFuemd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTMzMjAsImV4cCI6MjEwMTY4OTMyMH0.dWvnC8CkaUg-uNw2S0rNKklBOwx3ai6bMdI-ZA3RG3I";
   
-  // Initialize Supabase correctly
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let PRODUCTS = [];
   let CATEGORIES = [];
-  let HERO_SLIDES = [];
   let cart = JSON.parse(localStorage.getItem('ao_cart') || '[]');
 
   function hideSpinner(){
     const s = document.getElementById('spinnerWrap');
     if(!s) return;
     s.style.opacity = '0';
-    setTimeout(() => s.style.display = 'none', 450);
+    setTimeout(() => s.style.display = 'none', 300);
   }
 
-  // Fetch Hero Slides
-  async function loadHeroSlides() {
-    const { data, error } = await supabaseClient.from('hero_slides').select('*');
-    const container = document.getElementById('heroContainer');
-    let dotsHTML = '<div class="hero-dots">';
-    let slidesHTML = '';
+  // Parallel asynchronous fetching for lightning-fast speeds
+  try {
+    const [heroRes, catRes, prodRes] = await Promise.all([
+      supabaseClient.from('hero_slides').select('*'),
+      supabaseClient.from('categories').select('*'),
+      supabaseClient.from('products').select('*')
+    ]);
 
-    if (!error && data && data.length > 0) {
-      HERO_SLIDES = data;
-      data.forEach((slide, i) => {
-        // Handle variations of image url keys
+    // Handle Hero Slides
+    if (!heroRes.error && heroRes.data && heroRes.data.length > 0) {
+      const container = document.getElementById('heroContainer');
+      let dotsHTML = '<div class="hero-dots">';
+      let slidesHTML = '';
+      heroRes.data.forEach((slide, i) => {
         const imgUrl = slide.image_url || slide.imageUrl || 'https://placehold.co/1600x900/2a2622/c5a059';
         slidesHTML += `
           <div class="hero-slide ${i === 0 ? 'active' : ''}" data-slide="${i}">
-            <img src="${imgUrl}" alt="Hero Image">
+            <img src="${imgUrl}" alt="Hero Image" loading="${i === 0 ? 'eager' : 'lazy'}">
             <div class="hero-content">
               ${slide.title ? `<h1>${slide.title}</h1>` : ''}
               <a href="#collections" class="btn-gold">Shop Collection</a>
@@ -553,24 +544,42 @@
         `;
         dotsHTML += `<button class="${i === 0 ? 'active' : ''}" data-dot="${i}"></button>`;
       });
-    } else {
-      // Default Fallback Slider
-      slidesHTML = `
-        <div class="hero-slide active" data-slide="0">
-          <img src="https://placehold.co/1600x900/2a2622/c5a059?text=AYHAAN+OPULENT" alt="Default">
-          <div class="hero-content">
-            <a href="#collections" class="btn-gold">Shop Collection</a>
-          </div>
-        </div>
-      `;
-      dotsHTML += `<button class="active" data-dot="0"></button>`;
+      dotsHTML += '</div>';
+      container.innerHTML = slidesHTML + dotsHTML;
+      initSlider();
     }
-    dotsHTML += '</div>';
-    container.innerHTML = slidesHTML + dotsHTML;
-    initSlider();
+
+    // Handle Categories & Navigation
+    if (!catRes.error && catRes.data) {
+      CATEGORIES = catRes.data;
+      let mainNav = document.getElementById('mainNav');
+      let catScroll = document.getElementById('catScroll');
+      
+      let navHTML = '<a data-cat="all">All Collections</a>';
+      let pillsHTML = '';
+      
+      CATEGORIES.forEach(cat => {
+        const imgUrl = cat.image_url || cat.imageUrl || 'https://placehold.co/100';
+        navHTML += `<a data-cat="${cat.name}">${cat.name}</a>`;
+        pillsHTML += `<div class="cat-pill" data-cat="${cat.name}"><div class="ring"><img src="${imgUrl}" alt="${cat.name}" loading="lazy"></div><span>${cat.name}</span></div>`;
+      });
+      
+      mainNav.innerHTML = navHTML;
+      catScroll.innerHTML = pillsHTML;
+    }
+
+    // Handle Products
+    if (!prodRes.error && prodRes.data) {
+      PRODUCTS = prodRes.data;
+      renderProducts('all');
+    }
+  } catch (err) {
+    console.error("Data fetch exception:", err);
+  } finally {
+    hideSpinner();
   }
 
-  // Slider Logic
+  // Hero Slider Engine
   function initSlider() {
     const slides = document.querySelectorAll('.hero-slide');
     const dots = document.querySelectorAll('.hero-dots button');
@@ -595,34 +604,6 @@
     });
   }
 
-  async function loadStoreData() {
-    // Categories
-    const { data: catData, error: catError } = await supabaseClient.from('categories').select('*');
-    if(!catError && catData) CATEGORIES = catData;
-
-    let mainNav = document.getElementById('mainNav');
-    let catScroll = document.getElementById('catScroll');
-    
-    let navHTML = '<a data-cat="all">All Collections</a>';
-    let pillsHTML = '';
-    
-    CATEGORIES.forEach(cat => {
-      const imgUrl = cat.image_url || cat.imageUrl || 'https://placehold.co/100';
-      navHTML += `<a data-cat="${cat.name}">${cat.name}</a>`;
-      pillsHTML += `<div class="cat-pill" data-cat="${cat.name}"><div class="ring"><img src="${imgUrl}" alt="${cat.name}"></div><span>${cat.name}</span></div>`;
-    });
-    
-    mainNav.innerHTML = navHTML;
-    catScroll.innerHTML = pillsHTML;
-
-    // Products
-    const { data: prodData, error: prodError } = await supabaseClient.from('products').select('*');
-    if(!prodError && prodData) PRODUCTS = prodData;
-
-    renderProducts('all');
-    hideSpinner();
-  }
-
   function formatINR(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
 
   function renderProducts(filterCat) {
@@ -643,7 +624,7 @@
       <div class="product-card" data-id="${p.id}">
         <div class="product-media">
           <span class="badge-pill">Anti-Tarnish</span>
-          <img src="${imgUrl}" alt="${p.name}">
+          <img src="${imgUrl}" alt="${p.name}" loading="lazy">
           <button class="quick-add" onclick="window.addToCart('${p.id}')">+ Add to Bag</button>
         </div>
         <div class="product-info">
@@ -657,7 +638,7 @@
     `}).join('');
   }
 
-  // Category Filtering Event
+  // Event Delegation for Filter Navigation
   document.addEventListener('click', e => {
     const catEl = e.target.closest('[data-cat]');
     if(catEl) {
@@ -735,25 +716,20 @@
     `).join('');
   }
 
-  // Checkout -> WhatsApp
+  // Checkout Redirect with Minimum Order Validation
   document.getElementById('checkoutBtn').addEventListener('click', () => {
       if(cart.length === 0) return showToast('Your cart is empty');
       const subtotal = cart.reduce((sum, item) => sum + (item.qty * item.price), 0);
       
-      let msg = `🛍 *New Order — Ayhaan Opulent*\n\n*Items:*\n`;
-      cart.forEach(item => {
-          msg += `• ${item.name} ×${item.qty} = ₹${(item.qty * item.price)}\n`;
-      });
-      msg += `\n*Total: ₹${subtotal}*\n\nPlease confirm my order.`;
+      if(subtotal < 1000) {
+          showToast('Minimum purchase amount is ₹1000/-');
+          return;
+      }
       
-      window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
-      cart = [];
-      saveCart();
-      renderCart();
-      closeCart();
+      // Navigate to checkout page
+      window.location.href = 'checkout.html';
   });
 
-  // Drawer Toggles
   const cartDrawer = document.getElementById('cartDrawer');
   const overlay = document.getElementById('overlay');
   
@@ -764,7 +740,6 @@
   document.getElementById('cartClose').addEventListener('click', closeCart);
   overlay.addEventListener('click', closeCart);
 
-  // Toast System
   const toast = document.getElementById('toast');
   let toastTimer;
   function showToast(msg){
@@ -774,12 +749,8 @@
     toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
   }
 
-  // Boot sequence
-  await loadHeroSlides();
-  await loadStoreData();
   renderCart();
-
-})();
+});
 </script>
 </body>
 </html>
