@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — AYHAAN OPULENT</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white: #FFFFFF;
+    --off-white: #FDFBF7;
+    --gold: #C5A059;
+    --gold-deep: #A9824A;
+    --charcoal: rgb(158, 106, 104);
+    --charcoal-soft: rgb(158, 106, 104);
+    --line: #E8E2D8;
+    --serif: 'Playfair Display', 'Cormorant Garamond', serif;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+    --radius-s: 4px;
+    --radius-m: 8px;
+    --ease: cubic-bezier(.4,0,.2,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); color: var(--charcoal); background: var(--off-white); -webkit-font-smoothing: antialiased; }
+  a { text-decoration: none; color: inherit; }
+  
+  .header {
+    background: var(--white);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    letter-spacing: .14em;
+    font-weight: 600;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 4rem;
+  }
+  
+  h2 { font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; }
+  
+  .form-group { margin-bottom: 1.2rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  label { display: block; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; margin-bottom: 0.4rem; color: var(--charcoal-soft); }
+  input, textarea, select {
+    width: 100%; padding: 0.8rem; border: 1px solid var(--line); border-radius: var(--radius-s);
+    font-family: var(--sans); font-size: 0.9rem; background: var(--white);
+    outline: none; transition: border-color 0.3s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--gold-deep); }
+  
+  .order-summary {
+    background: var(--white);
+    padding: 2.5rem;
+    border-radius: var(--radius-m);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    border: 1px solid var(--line);
+  }
+  
+  .cart-item { display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+  .cart-item img { width: 60px; height: 75px; object-fit: cover; border-radius: var(--radius-s); }
+  .item-info { flex: 1; }
+  .item-name { font-family: var(--serif); font-weight: 600; font-size: 1rem; }
+  .item-meta { font-size: 0.8rem; color: var(--charcoal-soft); margin-top: 0.2rem; }
+  .item-price { font-weight: 600; font-size: 0.95rem; text-align: right; }
+  
+  .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.9rem; }
+  .summary-total { display: flex; justify-content: space-between; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid var(--line); font-weight: 700; font-size: 1.2rem; font-family: var(--serif); }
+  
+  .btn-pay {
+    width: 100%; padding: 1.2rem; margin-top: 2rem;
+    background: var(--charcoal); color: var(--off-white);
+    font-family: var(--sans); font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600;
+    border: none; border-radius: var(--radius-s); cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .btn-pay:hover { background: var(--gold-deep); transform: translateY(-2px); }
+  .btn-pay:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+  
+  .spinner { display: none; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.5rem; }
+    .order-summary { order: -1; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="index.html" class="brand">AYHAAN OPULENT</a>
+</header>
+
+<div class="container">
+  <div class="checkout-form">
+    <h2>Customer Details</h2>
+    <form id="checkoutForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="custName" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="custEmail" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="custPhone" required>
+        </div>
+      </div>
+      
+      <h2 style="margin-top:2.5rem;">Delivery Details</h2>
+      <div class="form-group">
+        <label>House/Building</label>
+        <input type="text" id="shipHouse" required>
+      </div>
+      <div class="form-group">
+        <label>Street</label>
+        <input type="text" id="shipStreet" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="shipCity" required>
+        </div>
+        <div class="form-group">
+          <label>District</label>
+          <input type="text" id="shipDistrict" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>State</label>
+          <input type="text" id="shipState" required>
+        </div>
+        <div class="form-group">
+          <label>PIN Code</label>
+          <input type="text" id="shipPin" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Country</label>
+        <input type="text" id="shipCountry" value="India" required>
+      </div>
+      <div class="form-group">
+        <label>Delivery Instructions (Optional)</label>
+        <textarea id="shipInst" rows="2"></textarea>
+      </div>
+    </form>
+  </div>
+  
+  <div class="order-summary">
+    <h2>Order Summary</h2>
+    <div id="cartItemsContainer"></div>
+    
+    <div style="margin-top:2rem;">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="summarySubtotal">₹0</span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span>Free</span>
+      </div>
+      <div class="summary-total">
+        <span>Total</span>
+        <span id="summaryTotal">₹0</span>
+      </div>
+    </div>
+    
+    <button type="button" id="upiBtn" class="btn-pay">
+      <div class="spinner" id="upiSpinner"></div>
+      Pay &amp; Continue
+    </button>
+  </div>
+</div>
+
+<!-- UPI payment status overlay -->
+<div id="upiOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:var(--white); border-radius:var(--radius-m); padding:2.5rem; max-width:380px; width:90%; text-align:center;">
+    <div style="width:36px; height:36px; margin:0 auto 1.2rem; border:3px solid var(--line); border-top-color:var(--gold-deep); border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+    <h3 style="font-family:var(--serif); font-size:1.2rem; margin-bottom:0.6rem;">Waiting for payment confirmation…</h3>
+    <p style="font-size:0.85rem; color:var(--charcoal-soft); margin-bottom:0.4rem;">Complete the payment in GPay/your UPI app. This page will update automatically once we receive it.</p>
+    <p style="font-size:0.8rem; color:var(--charcoal-soft); margin-bottom:1.5rem;">Order: <strong id="upiOrderNumLabel"></strong></p>
+    <button type="button" id="upiCancelBtn" style="background:none; border:1px solid var(--line); padding:0.7rem 1.4rem; border-radius:var(--radius-s); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; cursor:pointer;">Stop waiting</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const cart = JSON.parse(localStorage.getItem('ao_cart') || '[]');
+  
+  if (cart.length === 0) {
+    alert("Your cart is empty. Redirecting to shop.");
+    window.location.href = 'index.html';
+    return;
+  }
+  
+  const SUPABASE_URL = "https://orjxoslyjonedljqnzgu.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yanhvc2x5am9uZWRsanFuemd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTMzMjAsImV4cCI6MjEwMTY4OTMyMH0.dWvnC8CkaUg-uNw2S0rNKklBOwx3ai6bMdI-ZA3RG3I";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  const itemsContainer = document.getElementById('cartItemsContainer');
+  let subtotal = 0;
+  
+  cart.forEach(item => {
+    subtotal += item.price * item.qty;
+    itemsContainer.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.image || 'https://placehold.co/60x75'}" alt="${item.name}">
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          <div class="item-meta">Qty: ${item.qty}</div>
+        </div>
+        <div class="item-price">₹${item.price * item.qty}</div>
+      </div>
+    `;
+  });
+  
+  const totalAmount = subtotal; // Assuming free shipping
+  
+  document.getElementById('summarySubtotal').innerText = '₹' + subtotal;
+  document.getElementById('summaryTotal').innerText = '₹' + totalAmount;
+  
+  function readCheckoutForm() {
+    return {
+      customer_name: document.getElementById('custName').value,
+      customer_email: document.getElementById('custEmail').value,
+      customer_phone: document.getElementById('custPhone').value,
+      shipping_address: {
+        house: document.getElementById('shipHouse').value,
+        street: document.getElementById('shipStreet').value,
+        city: document.getElementById('shipCity').value,
+        district: document.getElementById('shipDistrict').value,
+        state: document.getElementById('shipState').value,
+        pin: document.getElementById('shipPin').value,
+        country: document.getElementById('shipCountry').value,
+        instructions: document.getElementById('shipInst').value
+      }
+    };
+  }
+
+  // Creates the order + order_items rows in Supabase. order_status/payment_status always
+  // start as pending — nothing on this page ever sets them to paid.
+  async function createPendingOrder() {
+    const orderNumber = 'ORD-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);
+    const formData = readCheckoutForm();
+
+    const orderData = {
+      order_number: orderNumber,
+      ...formData,
+      subtotal: subtotal,
+      total_amount: totalAmount,
+      order_status: 'pending',
+      payment_status: 'pending'
+    };
+
+    const { data: insertedOrder, error: orderError } = await supabase.from('orders').insert([orderData]).select().single();
+    if (orderError) throw orderError;
+
+    const orderItemsData = cart.map(item => ({
+      order_id: insertedOrder.id,
+      product_id: item.id,
+      product_name: item.name,
+      product_image: item.image,
+      quantity: item.qty,
+      unit_price: item.price,
+      total_price: item.qty * item.price
+    }));
+    await supabase.from('order_items').insert(orderItemsData);
+
+    return { orderNumber, insertedOrder, orderData };
+  }
+
+  // ── Direct UPI flow ──────────────────────────────────────────────────────
+  // No payment gateway involved: this just opens a upi:// intent and then
+  // polls Supabase waiting for order_status to change. Something else (an
+  // edge function, a notification-based listener, or you manually in the
+  // admin panel) has to be the thing that actually flips it to 'PAID' —
+  // this page only ever reads that value, never sets it.
+  const UPI_PAYEE_VPA = "kasaniya55@okicici";
+  const UPI_PAYEE_NAME = "Ayhaan opulent";
+  let upiPollTimer = null;
+  let upiPollStopAt = null;
+
+  function stopUpiPolling() {
+    if (upiPollTimer) clearInterval(upiPollTimer);
+    upiPollTimer = null;
+    document.getElementById('upiOverlay').style.display = 'none';
+  }
+
+  function startUpiPolling(orderNumber) {
+    document.getElementById('upiOrderNumLabel').textContent = orderNumber;
+    document.getElementById('upiOverlay').style.display = 'flex';
+    // Give up after 10 minutes of polling rather than looping forever if the
+    // user abandons the tab or the payment never lands.
+    upiPollStopAt = Date.now() + 10 * 60 * 1000;
+
+    upiPollTimer = setInterval(async () => {
+      if (Date.now() > upiPollStopAt) {
+        stopUpiPolling();
+        alert("Still haven't received confirmation. If you've already paid, your order will update once it's verified — you can also check anytime on the Track Order page.");
+        window.location.href = `track-order.html?order=${orderNumber}`;
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('orders')
+        .select('order_status')
+        .eq('order_number', orderNumber)
+        .single();
+
+      if (!error && data && data.order_status === 'PAID') {
+        stopUpiPolling();
+        window.location.href = `/success.html?order=${orderNumber}`;
+      }
+    }, 3000);
+  }
+
+  document.getElementById('upiCancelBtn').addEventListener('click', () => {
+    stopUpiPolling();
+  });
+
+  document.getElementById('upiBtn').addEventListener('click', async () => {
+    const form = document.getElementById('checkoutForm');
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const upiBtn = document.getElementById('upiBtn');
+    const upiSpinner = document.getElementById('upiSpinner');
+    upiBtn.disabled = true;
+    upiSpinner.style.display = 'inline-block';
+
+    try {
+      const { orderNumber } = await createPendingOrder();
+
+      const upiUrl =
+        `upi://pay?pa=${encodeURIComponent(UPI_PAYEE_VPA)}` +
+        `&pn=${encodeURIComponent(UPI_PAYEE_NAME)}` +
+        `&am=${encodeURIComponent(totalAmount)}` +
+        `&cu=INR` +
+        `&tn=${encodeURIComponent(orderNumber)}` +
+        `&tr=${encodeURIComponent(orderNumber)}`;
+
+      localStorage.removeItem('ao_cart');
+      startUpiPolling(orderNumber);
+      window.location.href = upiUrl;
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      upiBtn.disabled = false;
+      upiSpinner.style.display = 'none';
+    }
+  });
+
+});
+</script>
+</body>
+</html>

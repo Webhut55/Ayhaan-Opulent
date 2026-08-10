@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Order — AYHAAN OPULENT</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white: #FFFFFF;
+    --off-white: #FDFBF7;
+    --gold: #C5A059;
+    --charcoal: rgb(158, 106, 104);
+    --line: #E8E2D8;
+    --serif: 'Playfair Display', 'Cormorant Garamond', serif;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); color: var(--charcoal); background: var(--off-white); }
+  a { text-decoration: none; color: inherit; }
+  
+  .header { background: var(--white); padding: 1.5rem 2rem; text-align: center; border-bottom: 1px solid var(--line); }
+  .brand { font-family: var(--serif); font-size: 1.8rem; font-weight: 600; }
+  
+  .container { max-width: 800px; margin: 3rem auto; padding: 2rem; background: var(--white); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+  
+  h1 { font-family: var(--serif); text-align: center; margin-bottom: 2rem; }
+  
+  .search-box { display: flex; gap: 1rem; margin-bottom: 2rem; }
+  .search-box input { flex: 1; padding: 0.8rem; border: 1px solid var(--line); border-radius: 4px; font-family: var(--sans); }
+  .btn { padding: 0.8rem 2rem; background: var(--charcoal); color: var(--off-white); border: none; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: 600; letter-spacing: 0.1em; }
+  
+  .order-details { display: none; margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 2rem; }
+  .order-header { display: flex; justify-content: space-between; margin-bottom: 2rem; align-items: baseline; }
+  .order-number { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; }
+  
+  .timeline { margin: 2rem 0; padding-left: 1rem; border-left: 2px solid var(--line); }
+  .timeline-item { position: relative; padding-bottom: 1.5rem; padding-left: 1.5rem; }
+  .timeline-item::before { content: ''; position: absolute; left: -21px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--off-white); border: 2px solid var(--line); }
+  .timeline-item.active::before { background: var(--gold); border-color: var(--gold); }
+  .timeline-title { font-weight: 600; margin-bottom: 0.2rem; }
+  .timeline-meta { font-size: 0.8rem; color: #777; }
+  
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; background: var(--off-white); padding: 1.5rem; border-radius: 4px; }
+  .info-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #777; margin-bottom: 0.5rem; }
+  
+  #successMessage { display: none; text-align: center; color: #2e7d32; padding: 1rem; background: #e8f5e9; margin-bottom: 2rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<header class="header"><a href="index.html" class="brand">AYHAAN OPULENT</a></header>
+
+<div class="container">
+  <div id="successMessage">Thank you! Your order has been placed and payment was successful.</div>
+  
+  <h1>Track Your Order</h1>
+  
+  <div class="search-box">
+    <input type="text" id="orderInput" placeholder="Enter Order Number (e.g. ORD-2026-...)">
+    <button class="btn" onclick="trackOrder()">Track</button>
+  </div>
+  
+  <div class="order-details" id="orderDetails">
+    <div class="order-header">
+      <div class="order-number" id="lblOrderNum"></div>
+      <div id="lblStatus" style="font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;"></div>
+    </div>
+    
+    <div class="timeline" id="timeline"></div>
+    
+    <div class="info-grid">
+      <div>
+        <div class="info-title">Delivery Address</div>
+        <div id="lblAddress" style="line-height:1.5; font-size:0.9rem;"></div>
+      </div>
+      <div>
+        <div class="info-title">Courier Info</div>
+        <div id="lblCourier" style="line-height:1.5; font-size:0.9rem;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = "https://orjxoslyjonedljqnzgu.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yanhvc2x5am9uZWRsanFuemd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTMzMjAsImV4cCI6MjEwMTY4OTMyMH0.dWvnC8CkaUg-uNw2S0rNKklBOwx3ai6bMdI-ZA3RG3I";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderParam = urlParams.get('order');
+  const successParam = urlParams.get('success');
+
+  if(orderParam) {
+    document.getElementById('orderInput').value = orderParam;
+    trackOrder();
+  }
+
+  // Never trust ?success=true on its own — it's just a URL param anyone can set.
+  // Re-verify the payment against Cashfree's API before showing the success message.
+  if(successParam === 'true' && orderParam) {
+    (async () => {
+      const { data, error } = await supabase.functions.invoke('verify-cashfree-payment', {
+        body: { order_number: orderParam }
+      });
+      if(!error && data && data.status === 'success') {
+        document.getElementById('successMessage').style.display = 'block';
+        trackOrder(); // refresh to show the now-confirmed status
+      }
+    })();
+  }
+
+  async function trackOrder() {
+    const orderNum = document.getElementById('orderInput').value.trim();
+    if(!orderNum) return;
+    
+    document.getElementById('orderDetails').style.display = 'none';
+    
+    const { data: order, error } = await supabase.from('orders').select('*').eq('order_number', orderNum).single();
+    
+    if(error || !order) {
+      alert("Order not found. Please check your order number.");
+      return;
+    }
+    
+    const { data: history } = await supabase.from('order_status_history').select('*').eq('order_id', order.id).order('created_at', { ascending: true });
+    
+    document.getElementById('lblOrderNum').innerText = order.order_number;
+    document.getElementById('lblStatus').innerText = order.order_status;
+    document.getElementById('lblStatus').style.color = (order.order_status === 'delivered') ? '#2e7d32' : 'var(--gold)';
+    
+    const addr = order.shipping_address;
+    document.getElementById('lblAddress').innerHTML = `${order.customer_name}<br>${addr.house}, ${addr.street}<br>${addr.city}, ${addr.state} ${addr.pin}<br>${addr.country}`;
+    
+    let courierHtml = `Courier: ${order.courier_name || 'Pending'}<br>Tracking: ${order.tracking_number || 'Pending'}`;
+    if(order.estimated_delivery) {
+      courierHtml += `<br>Est. Delivery: ${new Date(order.estimated_delivery).toLocaleDateString()}`;
+    }
+    document.getElementById('lblCourier').innerHTML = courierHtml;
+    
+    const timelineEl = document.getElementById('timeline');
+    const defaultSteps = [
+      { key: 'pending', label: 'Order Placed' },
+      { key: 'confirmed', label: 'Confirmed' },
+      { key: 'processing', label: 'Processing' },
+      { key: 'shipped', label: 'Shipped' },
+      { key: 'delivered', label: 'Delivered' }
+    ];
+    
+    let currentIdx = defaultSteps.findIndex(s => s.key === order.order_status);
+    if (currentIdx === -1) currentIdx = 1; // fallback
+    
+    timelineEl.innerHTML = defaultSteps.map((step, idx) => {
+      const h = (history || []).find(x => x.status === step.key);
+      const isActive = idx <= currentIdx;
+      const activeClass = isActive ? 'active' : '';
+      const dateStr = h ? new Date(h.created_at).toLocaleString() : '';
+      return `
+        <div class="timeline-item ${activeClass}">
+          <div class="timeline-title">${step.label}</div>
+          <div class="timeline-meta">${dateStr}</div>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById('orderDetails').style.display = 'block';
+  }
+</script>
+</body>
+</html>
