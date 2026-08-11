@@ -1,207 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checkout — AYHAAN OPULENT</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --white: #FFFFFF;
-    --off-white: #FDFBF7;
-    --gold: #C5A059;
-    --gold-deep: #A9824A;
-    --charcoal: #636B2F;
-    --charcoal-soft: #636B2F;
-    --line: #E8E2D8;
-    --serif: 'Playfair Display', 'Cormorant Garamond', serif;
-    --sans: 'Plus Jakarta Sans', sans-serif;
-    --radius-s: 4px;
-    --radius-m: 8px;
-    --ease: cubic-bezier(.4,0,.2,1);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--sans); color: var(--charcoal); background: var(--off-white); -webkit-font-smoothing: antialiased; }
-  a { text-decoration: none; color: inherit; }
-  
-  .header {
-    background: var(--white);
-    padding: 1.5rem 2rem;
-    text-align: center;
-    border-bottom: 1px solid var(--line);
-  }
-  .brand {
-    font-family: var(--serif);
-    font-size: 1.8rem;
-    letter-spacing: .14em;
-    font-weight: 600;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 3rem 2rem;
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 4rem;
-  }
-  
-  h2 { font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; }
-  
-  .form-group { margin-bottom: 1.2rem; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  label { display: block; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; margin-bottom: 0.4rem; color: var(--charcoal-soft); }
-  input, textarea, select {
-    width: 100%; padding: 0.8rem; border: 1px solid var(--line); border-radius: var(--radius-s);
-    font-family: var(--sans); font-size: 0.9rem; background: var(--white);
-    outline: none; transition: border-color 0.3s;
-  }
-  input:focus, textarea:focus, select:focus { border-color: var(--gold-deep); }
-  
-  .order-summary {
-    background: var(--white);
-    padding: 2.5rem;
-    border-radius: var(--radius-m);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-    border: 1px solid var(--line);
-  }
-  
-  .cart-item { display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
-  .cart-item img { width: 60px; height: 75px; object-fit: cover; border-radius: var(--radius-s); }
-  .item-info { flex: 1; }
-  .item-name { font-family: var(--serif); font-weight: 600; font-size: 1rem; }
-  .item-meta { font-size: 0.8rem; color: var(--charcoal-soft); margin-top: 0.2rem; }
-  .item-price { font-weight: 600; font-size: 0.95rem; text-align: right; }
-  
-  .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.9rem; }
-  .summary-total { display: flex; justify-content: space-between; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid var(--line); font-weight: 700; font-size: 1.2rem; font-family: var(--serif); }
-  
-  .btn-pay {
-    width: 100%; padding: 1.2rem; margin-top: 2rem;
-    background: var(--charcoal); color: var(--off-white);
-    font-family: var(--sans); font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600;
-    border: none; border-radius: var(--radius-s); cursor: pointer;
-    transition: background 0.3s, transform 0.3s;
-  }
-  .btn-pay:hover { background: var(--gold-deep); transform: translateY(-2px); }
-  .btn-pay:disabled { background: #ccc; cursor: not-allowed; transform: none; }
-  
-  .spinner { display: none; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  
-  @media (max-width: 900px) {
-    .container { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.5rem; }
-    .order-summary { order: -1; }
-  }
-  @media (max-width: 600px) {
-    .form-row { grid-template-columns: 1fr; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Checkout — AYHAAN OPULENT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Supabase Script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --white: #FFFFFF;
+      --off-white: #FDFBF7;
+      --gold: #C5A059;
+      --gold-deep: #A9824A;
+      --charcoal: #636B2F;
+      --charcoal-soft: #636B2F;
+      --line: #E8E2D8;
+      --serif: 'Playfair Display', 'Cormorant Garamond', serif;
+      --sans: 'Plus Jakarta Sans', sans-serif;
+      --radius-s: 4px;
+      --radius-m: 8px;
+      --ease: cubic-bezier(.4,0,.2,1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--sans); color: var(--charcoal); background: var(--off-white); -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    
+    .header {
+      background: var(--white);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      letter-spacing: .14em;
+      font-weight: 600;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        padding: 1.5rem 1rem;
+        gap: 2rem;
+      }
+      .form-row {
+        grid-template-columns: 1fr !important;
+      }
+      .order-summary {
+        order: -1; /* Show order summary first on mobile */
+      }
+    }
 
+    h2 { font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; }
+    
+    .form-group { margin-bottom: 1.2rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    label { display: block; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; margin-bottom: 0.4rem; color: var(--charcoal-soft); }
+    input, textarea, select {
+      width: 100%; padding: 0.8rem; border: 1px solid var(--line); border-radius: var(--radius-s);
+      font-family: var(--sans); font-size: 0.9rem; background: var(--white);
+      outline: none; transition: border-color 0.3s;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--gold-deep); }
+    
+    .order-summary {
+      background: var(--white);
+      padding: 2.5rem;
+      border-radius: var(--radius-m);
+      border: 1px solid var(--line);
+      height: fit-content;
+      position: sticky;
+      top: 2rem;
+    }
+    .cart-items { margin-bottom: 2rem; }
+    .cart-item { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
+    .cart-item img { width: 60px; height: 75px; object-fit: cover; border-radius: var(--radius-s); border: 1px solid var(--line); }
+    .item-info { flex: 1; }
+    .item-name { font-weight: 500; margin-bottom: 0.2rem; }
+    .item-meta { font-size: 0.8rem; color: #666; }
+    .item-price { font-weight: 600; }
+    
+    .summary-totals { border-top: 1px solid var(--line); padding-top: 1.5rem; margin-bottom: 2rem; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
+    .summary-row.total { font-size: 1.2rem; font-weight: 700; border-top: 1px dashed var(--line); padding-top: 1rem; margin-top: 0.5rem; color: var(--gold-deep); }
+    
+    .btn-pay {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 1rem;
+      background: var(--charcoal);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-s);
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s var(--ease);
+    }
+    .btn-pay:hover { background: #4a5022; }
+    .btn-pay:disabled { background: #999; cursor: not-allowed; }
+    
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(42, 38, 34, 0.8);
+      backdrop-filter: blur(4px);
+      display: none; justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal-content {
+      background: var(--white);
+      padding: 3rem;
+      border-radius: var(--radius-m);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-icon {
+      width: 64px; height: 64px; margin: 0 auto 1.5rem; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-title { font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem; }
+    .modal-message { font-size: 0.95rem; line-height: 1.5; color: #555; margin-bottom: 2rem; }
+    .btn-outline {
+      padding: 0.8rem 1.5rem; border: 1px solid var(--charcoal); background: transparent; color: var(--charcoal);
+      border-radius: var(--radius-s); cursor: pointer; font-family: var(--sans); font-weight: 500;
+      transition: all 0.3s;
+    }
+    .btn-outline:hover { background: var(--charcoal); color: var(--white); }
+    
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
 
-<header class="header">
-  <a href="index.html" class="brand">AYHAAN OPULENT</a>
-</header>
+  <header class="header">
+    <div class="brand">AYHAAN OPULENT</div>
+  </header>
 
-<div class="container">
-  <div class="checkout-form">
-    <h2>Customer Details</h2>
-    <form id="checkoutForm">
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="custName" required>
-      </div>
-      <div class="form-row">
+  <div class="container">
+    <div class="checkout-form">
+      <h2>Shipping & Billing Details</h2>
+      <form id="checkoutForm">
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="custEmail" required>
+          <label>Full Name</label>
+          <input type="text" id="custName" required placeholder="Jane Doe">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="custEmail" required placeholder="jane@example.com">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="custPhone" required placeholder="+91 9876543210" pattern="[0-9+\s\-]+">
+          </div>
+        </div>
+
+        <h2 style="margin-top: 2rem;">Shipping Address</h2>
+        <div class="form-group">
+          <label>House / Apartment No.</label>
+          <input type="text" id="shipHouse" required>
         </div>
         <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="custPhone" required>
+          <label>Street / Area</label>
+          <input type="text" id="shipStreet" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" id="shipCity" required>
+          </div>
+          <div class="form-group">
+            <label>District</label>
+            <input type="text" id="shipDistrict" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" id="shipState" required>
+          </div>
+          <div class="form-group">
+            <label>PIN Code</label>
+            <input type="text" id="shipPin" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <input type="text" id="shipCountry" value="India" required readonly style="background: #f5f5f5; color: #777;">
+        </div>
+        <div class="form-group">
+          <label>Delivery Instructions (Optional)</label>
+          <textarea id="shipInst" rows="2"></textarea>
+        </div>
+      </form>
+    </div>
+
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <div class="cart-items" id="cartItemsContainer">
+        <!-- JS injected items -->
+      </div>
+      
+      <div class="summary-totals">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="summarySubtotal">₹0</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span>Free</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="summaryTotal">₹0</span>
         </div>
       </div>
       
-      <h2 style="margin-top:2.5rem;">Delivery Details</h2>
-      <div class="form-group">
-        <label>House/Building</label>
-        <input type="text" id="shipHouse" required>
-      </div>
-      <div class="form-group">
-        <label>Street</label>
-        <input type="text" id="shipStreet" required>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>City</label>
-          <input type="text" id="shipCity" required>
-        </div>
-        <div class="form-group">
-          <label>District</label>
-          <input type="text" id="shipDistrict" required>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>State</label>
-          <input type="text" id="shipState" required>
-        </div>
-        <div class="form-group">
-          <label>PIN Code</label>
-          <input type="text" id="shipPin" required>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Country</label>
-        <input type="text" id="shipCountry" value="India" required>
-      </div>
-      <div class="form-group">
-        <label>Delivery Instructions (Optional)</label>
-        <textarea id="shipInst" rows="2"></textarea>
-      </div>
-    </form>
-  </div>
-  
-  <div class="order-summary">
-    <h2>Order Summary</h2>
-    <div id="cartItemsContainer"></div>
-    
-    <div style="margin-top:2rem;">
-      <div class="summary-row">
-        <span>Subtotal</span>
-        <span id="summarySubtotal">₹0</span>
-      </div>
-      <div class="summary-row">
-        <span>Shipping</span>
-        <span>Free</span>
-      </div>
-      <div class="summary-total">
-        <span>Total</span>
-        <span id="summaryTotal">₹0</span>
+      <button class="btn-pay" id="payBtn" type="button">
+        <svg id="paySpinner" style="display:none; animation:spin 1s linear infinite;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+        Proceed to Payment
+      </button>
+      <div style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #666; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Secured by Razorpay
       </div>
     </div>
-    
-    <button type="button" id="payBtn" class="btn-pay">
-      <div class="spinner" id="paySpinner"></div>
-      Pay &amp; Continue
-    </button>
   </div>
-</div>
 
-<!-- Payment Status Modal -->
-<div id="paymentModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
-  <div style="background:var(--white); border-radius:var(--radius-m); padding:2.5rem; max-width:380px; width:90%; text-align:center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-    <div id="modalIcon" style="width:48px; height:48px; margin:0 auto 1.2rem; display:flex; align-items:center; justify-content:center; border-radius:50%;"></div>
-    <h3 id="modalTitle" style="font-family:var(--serif); font-size:1.4rem; margin-bottom:0.6rem;">Processing...</h3>
-    <p id="modalMessage" style="font-size:0.85rem; color:var(--charcoal-soft); margin-bottom:1.5rem; line-height: 1.5;"></p>
-    <button type="button" id="modalCloseBtn" style="background:var(--charcoal); color:var(--off-white); border:none; padding:0.8rem 1.6rem; border-radius:var(--radius-s); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight: 600; cursor:pointer; transition: background 0.3s; display:none;">Close</button>
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal-content">
+      <div class="modal-icon" id="modalIcon"></div>
+      <h3 class="modal-title" id="modalTitle">Processing</h3>
+      <p class="modal-message" id="modalMessage">Please wait...</p>
+      <button class="btn-outline" id="modalCloseBtn" style="display:none;">Close</button>
+    </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="../js/checkout.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cart = JSON.parse(localStorage.getItem('ao_cart') || '[]');
+
+      if (cart.length === 0) {
+        window.location.href = 'index.html'; // Assuming index.html is the shop page
+        return;
+      }
+
+      const SUPABASE_URL = "https://orjxoslyjonedljqnzgu.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yanhvc2x5am9uZWRsanFuemd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTMzMjAsImV4cCI6MjEwMTY4OTMyMH0.dWvnC8CkaUg-uNw2S0rNKklBOwx3ai6bMdI-ZA3RG3I";
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const itemsContainer = document.getElementById('cartItemsContainer');
+      let subtotal = 0;
+
+      cart.forEach(item => {
+        subtotal += item.price * item.qty;
+        itemsContainer.innerHTML += `
+          <div class="cart-item">
+            <img src="${item.image || 'https://placehold.co/60x75'}" alt="${item.name}" onerror="this.src='https://placehold.co/60x75'">
+            <div class="item-info">
+              <div class="item-name">${item.name}</div>
+              <div class="item-meta">Qty: ${item.qty}</div>
+            </div>
+            <div class="item-price">₹${item.price * item.qty}</div>
+          </div>
+        `;
+      });
+
+      const totalAmount = subtotal; // Free shipping
+
+      document.getElementById('summarySubtotal').innerText = '₹' + subtotal;
+      document.getElementById('summaryTotal').innerText = '₹' + totalAmount;
+
+      function readCheckoutForm() {
+        return {
+          customer_name: document.getElementById('custName').value,
+          customer_email: document.getElementById('custEmail').value,
+          customer_phone: document.getElementById('custPhone').value,
+          shipping_address: {
+            house: document.getElementById('shipHouse').value,
+            street: document.getElementById('shipStreet').value,
+            city: document.getElementById('shipCity').value,
+            district: document.getElementById('shipDistrict').value,
+            state: document.getElementById('shipState').value,
+            pin: document.getElementById('shipPin').value,
+            country: document.getElementById('shipCountry').value,
+            instructions: document.getElementById('shipInst').value
+          }
+        };
+      }
+
+      async function createPendingOrder() {
+        const orderNumber = 'ORD-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);
+        const formData = readCheckoutForm();
+
+        const orderData = {
+          order_number: orderNumber,
+          ...formData,
+          subtotal: subtotal,
+          total_amount: totalAmount,
+          order_status: 'pending',
+          payment_status: 'pending'
+        };
+
+        const { data: insertedOrder, error: orderError } = await supabase.from('orders').insert([orderData]).select().single();
+        if (orderError) throw orderError;
+
+        const orderItemsData = cart.map(item => ({
+          order_id: insertedOrder.id,
+          product_id: item.id,
+          product_name: item.name,
+          product_image: item.image,
+          quantity: item.qty,
+          unit_price: item.price,
+          total_price: item.qty * item.price
+        }));
+        await supabase.from('order_items').insert(orderItemsData);
+
+        return { orderNumber, insertedOrder, orderData };
+      }
+
+      const payBtn = document.getElementById('payBtn');
+      const paySpinner = document.getElementById('paySpinner');
+      const modal = document.getElementById('paymentModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalIcon = document.getElementById('modalIcon');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+      function showModal(state, title, message) {
+        modal.style.display = 'flex';
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+
+        if (state === 'loading') {
+          modalIcon.innerHTML = '<div style="width:36px; height:36px; border:3px solid var(--line); border-top-color:var(--gold-deep); border-radius:50%; animation:spin 0.8s linear infinite;"></div>';
+          modalCloseBtn.style.display = 'none';
+        } else if (state === 'success') {
+          modalIcon.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+          modalIcon.style.background = '#e8f5e9';
+          modalCloseBtn.style.display = 'inline-block';
+          modalCloseBtn.textContent = 'View Order';
+          modalCloseBtn.onclick = () => window.location.href = `track-order.html`;
+        } else if (state === 'error') {
+          modalIcon.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+          modalIcon.style.background = '#ffebee';
+          modalCloseBtn.style.display = 'inline-block';
+          modalCloseBtn.textContent = 'Close';
+          modalCloseBtn.onclick = () => modal.style.display = 'none';
+        }
+      }
+
+      payBtn.addEventListener('click', async (e) => {
+        // Prevent default form submission if it's somehow wrapped in a form, though it's type="button"
+        e.preventDefault();
+
+        const form = document.getElementById('checkoutForm');
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        payBtn.disabled = true;
+        paySpinner.style.display = 'inline-block';
+
+        try {
+          // Check if Razorpay script is loaded before doing database work
+          if (typeof window.Razorpay === 'undefined') {
+             throw new Error('Payment gateway failed to load. Please disable adblockers or check your internet connection.');
+          }
+
+          // 1. Create Pending Order in Supabase DB
+          const { orderNumber, orderData } = await createPendingOrder();
+
+          // 2. Call Edge Function to create Razorpay Order
+          const { data: rzpOrder, error: createError } = await supabase.functions.invoke('razorpay-handler', {
+            body: {
+              amount: totalAmount,
+              currency: 'INR',
+              receipt: orderNumber,
+              customer: { name: orderData.customer_name, email: orderData.customer_email }
+            }
+          });
+
+          if (createError || !rzpOrder) {
+            throw new Error((createError && createError.message) || 'Failed to initialize payment gateway.');
+          }
+
+          // 3. Setup Razorpay Checkout Options
+          const options = {
+            key: rzpOrder.key_id, // Passed from edge function
+            amount: rzpOrder.amount, // in paise
+            currency: rzpOrder.currency,
+            name: 'AYHAAN OPULENT',
+            description: `Order ${orderNumber}`,
+            image: 'https://placehold.co/100x100/2a2622/c5a059?text=AO', // Optional logo
+            order_id: rzpOrder.order_id,
+            handler: async function (response) {
+              // 4. Verify Payment Tokens via Edge Function
+              showModal('loading', 'Verifying Payment', 'Please wait while we confirm your payment...');
+
+              try {
+                const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+                  body: {
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    order_number: orderNumber
+                  }
+                });
+
+                if (!verifyError && verifyData && verifyData.verified) {
+                  // Clear cart on success
+                  localStorage.removeItem('ao_cart');
+                  showModal('success', 'Payment Successful!', `Your order ${orderNumber} has been confirmed. Please click below to send the delivery details to our WhatsApp.`);
+
+                  // Construct WhatsApp message
+                  const address = orderData.shipping_address;
+                  const waText = `*New Order Confirmed!* 🎊\n*Order No:* ${orderNumber}\n*Total Paid:* ₹${totalAmount}\n\n*Customer Details:*\nName: ${orderData.customer_name}\nPhone: ${orderData.customer_phone}\nEmail: ${orderData.customer_email}\n\n*Delivery Address:*\n${address.house}, ${address.street}\n${address.city}, ${address.district}\n${address.state} - ${address.pin}\nCountry: ${address.country}\n${address.instructions ? `\n*Instructions:* ${address.instructions}` : ''}`;
+
+                  const waUrl = `https://wa.me/918590529249?text=${encodeURIComponent(waText)}`;
+
+                  modalCloseBtn.textContent = 'Send via WhatsApp';
+                  modalCloseBtn.onclick = () => {
+                    window.open(waUrl, '_blank');
+                    window.location.href = 'index.html'; 
+                  };
+                } else {
+                  throw new Error('Signature verification failed.');
+                }
+              } catch (err) {
+                console.error(err);
+                showModal('error', 'Verification Failed', 'Payment was processed but verification failed. Please contact support if amount was deducted.');
+              }
+            },
+            prefill: {
+              name: orderData.customer_name,
+              email: orderData.customer_email,
+              contact: orderData.customer_phone
+            },
+            theme: {
+              color: '#636B2F' 
+            },
+            modal: {
+              ondismiss: function () {
+                showModal('error', 'Payment Cancelled', 'You cancelled the payment. Your order has been saved but remains unpaid.');
+                // Re-enable pay button so they can try again
+                payBtn.disabled = false;
+                paySpinner.style.display = 'none';
+              }
+            }
+          };
+
+          // Open Razorpay Popup
+          const rzp = new window.Razorpay(options);
+          rzp.on('payment.failed', function (response) {
+            showModal('error', 'Payment Failed', response.error.description);
+            payBtn.disabled = false;
+            paySpinner.style.display = 'none';
+          });
+          rzp.open();
+
+        } catch (err) {
+          console.error(err);
+          showModal('error', 'Something Went Wrong', err.message || 'An unexpected error occurred. Please try again.');
+          payBtn.disabled = false;
+          paySpinner.style.display = 'none';
+        }
+      });
+    });
+  </script>
 </body>
 </html>
