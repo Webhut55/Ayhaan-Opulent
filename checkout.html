@@ -8,6 +8,7 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <!-- Supabase Script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root {
       --white: #FFFFFF;
@@ -24,47 +25,102 @@
       --ease: cubic-bezier(.4,0,.2,1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--sans); color: var(--charcoal); background: var(--off-white); -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--sans); color: var(--charcoal); background: var(--off-white); -webkit-font-smoothing: antialiased; min-height: 100vh; }
     a { text-decoration: none; color: inherit; }
     
     .header {
       background: var(--white);
-      padding: 1.5rem 2rem;
+      padding: 1.2rem 2rem;
       text-align: center;
       border-bottom: 1px solid var(--line);
     }
     .brand {
       font-family: var(--serif);
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       letter-spacing: .14em;
       font-weight: 600;
     }
+
+    /* Step Progress Indicator */
+    .steps-nav {
+      max-width: 600px;
+      margin: 1.5rem auto 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0 1rem;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .step-item.active { color: var(--charcoal); }
+    .step-item.completed { color: var(--gold-deep); }
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+    .step-item.active .step-number {
+      background: var(--charcoal);
+      color: var(--white);
+    }
+    .step-item.completed .step-number {
+      background: var(--gold-deep);
+      color: var(--white);
+    }
+    .step-divider {
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+      max-width: 60px;
+    }
     
     .container {
-      max-width: 1200px;
+      max-width: 760px;
       margin: 0 auto;
-      padding: 3rem 2rem;
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 4rem;
+      padding: 2rem 1.5rem 4rem 1.5rem;
     }
     
     @media (max-width: 768px) {
       .container {
-        grid-template-columns: 1fr;
-        padding: 1.5rem 1rem;
-        gap: 2rem;
+        padding: 1.2rem 1rem 3rem 1rem;
       }
       .form-row {
         grid-template-columns: 1fr !important;
       }
-      .order-summary {
-        order: -1; /* Show order summary first on mobile */
+    }
+
+    h2 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; }
+    
+    .checkout-card {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: var(--radius-m);
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .checkout-card {
+        padding: 1.2rem;
       }
     }
 
-    h2 { font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; }
-    
     .form-group { margin-bottom: 1.2rem; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     label { display: block; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; margin-bottom: 0.4rem; color: var(--charcoal-soft); }
@@ -75,16 +131,38 @@
     }
     input:focus, textarea:focus, select:focus { border-color: var(--gold-deep); }
     
-    .order-summary {
-      background: var(--white);
-      padding: 2.5rem;
-      border-radius: var(--radius-m);
+    /* Address Preview Box in Step 2 */
+    .address-review-card {
+      background: var(--off-white);
       border: 1px solid var(--line);
-      height: fit-content;
-      position: sticky;
-      top: 2rem;
+      border-radius: var(--radius-s);
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
-    .cart-items { margin-bottom: 2rem; }
+    .address-review-details {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .address-review-name {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+    .btn-edit-address {
+      background: none;
+      border: none;
+      color: var(--gold-deep);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .cart-items { margin-bottom: 1.5rem; }
     .cart-item { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
     .cart-item img { width: 60px; height: 75px; object-fit: cover; border-radius: var(--radius-s); border: 1px solid var(--line); }
     .item-info { flex: 1; }
@@ -92,15 +170,11 @@
     .item-meta { font-size: 0.8rem; color: #666; }
     .item-price { font-weight: 600; }
     
-    .summary-totals { border-top: 1px solid var(--line); padding-top: 1.5rem; margin-bottom: 2rem; }
-    .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
+    .summary-totals { border-top: 1px solid var(--line); padding-top: 1.2rem; margin-bottom: 1.5rem; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.95rem; }
     .summary-row.total { font-size: 1.2rem; font-weight: 700; border-top: 1px dashed var(--line); padding-top: 1rem; margin-top: 0.5rem; color: var(--gold-deep); }
     
-    .pay-action-container {
-      margin-top: 1.5rem;
-    }
-
-    .btn-pay {
+    .btn-action {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -117,8 +191,18 @@
       cursor: pointer;
       transition: background-color 0.3s var(--ease);
     }
-    .btn-pay:hover { background: #4a5022; }
-    .btn-pay:disabled { background: #999; cursor: not-allowed; }
+    .btn-action:hover { background: #4a5022; }
+    .btn-action:disabled { background: #999; cursor: not-allowed; }
+
+    .btn-back {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--charcoal);
+      margin-top: 0.8rem;
+    }
+    .btn-back:hover {
+      background: #f5f5f5;
+    }
     
     /* Modal Styles */
     .modal-overlay {
@@ -129,7 +213,7 @@
     }
     .modal-content {
       background: var(--white);
-      padding: 3rem;
+      padding: 2.5rem 2rem;
       border-radius: var(--radius-m);
       text-align: center;
       max-width: 400px;
@@ -150,128 +234,146 @@
     .btn-outline:hover { background: var(--charcoal); color: var(--white); }
     
     @keyframes spin { 100% { transform: rotate(360deg); } }
-
-    @media (max-width: 768px) {
-      .pay-action-container {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: var(--white);
-        padding: 1rem;
-        margin-top: 0;
-        box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
-        z-index: 100;
-        border-top: 1px solid var(--line);
-      }
-      
-      body {
-        padding-bottom: 6rem; /* Add padding to body to ensure we can scroll past everything */
-      }
-
-      .container {
-        padding-bottom: 2rem; /* Reduce container padding to avoid double spacing */
-      }
-    }
   </style>
 </head>
 <body>
 
   <header class="header">
     <div class="brand">AYHAAN OPULENT</div>
+    
+    <div class="steps-nav">
+      <div class="step-item active" id="navStep1">
+        <span class="step-number">1</span>
+        <span>Address</span>
+      </div>
+      <div class="step-divider"></div>
+      <div class="step-item" id="navStep2">
+        <span class="step-number">2</span>
+        <span>Payment</span>
+      </div>
+    </div>
   </header>
 
   <div class="container">
-    <div class="checkout-form">
-      <h2>Shipping & Billing Details</h2>
-      <form id="checkoutForm">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="custName" required placeholder="Jane Doe">
-        </div>
-        <div class="form-row">
+    
+    <!-- STEP 1: Address Filling Page -->
+    <div id="step1View">
+      <div class="checkout-card">
+        <h2>Shipping & Delivery Details</h2>
+        <form id="addressForm">
           <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="custEmail" required placeholder="jane@example.com">
+            <label>Full Name</label>
+            <input type="text" id="custName" required placeholder="Jane Doe">
           </div>
-          <div class="form-group">
-            <label>Phone Number</label>
-            <input type="tel" id="custPhone" required placeholder="+91 9876543210" pattern="[0-9+\s\-]+">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="custEmail" required placeholder="jane@example.com">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" id="custPhone" required placeholder="+91 9876543210" pattern="[0-9+\s\-]+">
+            </div>
           </div>
-        </div>
 
-        <h2 style="margin-top: 2rem;">Shipping Address</h2>
-        <div class="form-group">
-          <label>House / Apartment No.</label>
-          <input type="text" id="shipHouse" required>
-        </div>
-        <div class="form-group">
-          <label>Street / Area</label>
-          <input type="text" id="shipStreet" required>
-        </div>
-        <div class="form-row">
+          <h2 style="margin-top: 1.5rem;">Address</h2>
           <div class="form-group">
-            <label>City</label>
-            <input type="text" id="shipCity" required>
+            <label>House / Apartment No.</label>
+            <input type="text" id="shipHouse" required placeholder="Apt 4B, Building 2">
           </div>
           <div class="form-group">
-            <label>District</label>
-            <input type="text" id="shipDistrict" required>
+            <label>Street / Area</label>
+            <input type="text" id="shipStreet" required placeholder="Main Street, Sector 15">
           </div>
-        </div>
-        <div class="form-row">
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="shipCity" required placeholder="Mumbai">
+            </div>
+            <div class="form-group">
+              <label>District</label>
+              <input type="text" id="shipDistrict" required placeholder="Mumbai City">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" id="shipState" required placeholder="Maharashtra">
+            </div>
+            <div class="form-group">
+              <label>PIN Code</label>
+              <input type="text" id="shipPin" required placeholder="400001">
+            </div>
+          </div>
           <div class="form-group">
-            <label>State</label>
-            <input type="text" id="shipState" required>
+            <label>Country</label>
+            <input type="text" id="shipCountry" value="India" required readonly style="background: #f5f5f5; color: #777;">
           </div>
           <div class="form-group">
-            <label>PIN Code</label>
-            <input type="text" id="shipPin" required>
+            <label>Delivery Instructions (Optional)</label>
+            <textarea id="shipInst" rows="2" placeholder="Leave at front door / Call before delivery"></textarea>
           </div>
-        </div>
-        <div class="form-group">
-          <label>Country</label>
-          <input type="text" id="shipCountry" value="India" required readonly style="background: #f5f5f5; color: #777;">
-        </div>
-        <div class="form-group">
-          <label>Delivery Instructions (Optional)</label>
-          <textarea id="shipInst" rows="2"></textarea>
-        </div>
-      </form>
+
+          <button class="btn-action" type="submit" id="btnToPayment">
+            Proceed to Payment
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </form>
+      </div>
     </div>
 
-    <div class="order-summary">
-      <h2>Order Summary</h2>
-      <div class="cart-items" id="cartItemsContainer">
-        <!-- JS injected items -->
-      </div>
+    <!-- STEP 2: Order Summary & Payment Page -->
+    <div id="step2View" style="display: none;">
       
-      <div class="summary-totals">
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <span id="summarySubtotal">₹0</span>
+      <!-- Delivery Address Summary -->
+      <div class="address-review-card">
+        <div class="address-review-details">
+          <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #777; font-weight: 600; margin-bottom: 0.3rem;">Delivering To</div>
+          <div class="address-review-name" id="reviewName">Jane Doe</div>
+          <div id="reviewAddress">Apt 4B, Main Street, Mumbai, Maharashtra - 400001</div>
+          <div id="reviewContact" style="margin-top: 0.3rem; color: #666; font-size: 0.85rem;">+91 9876543210 | jane@example.com</div>
         </div>
-        <div class="summary-row">
-          <span>Shipping</span>
-          <span>Free</span>
-        </div>
-        <div class="summary-row total">
-          <span>Total</span>
-          <span id="summaryTotal">₹0</span>
-        </div>
+        <button type="button" class="btn-edit-address" id="btnEditAddress">Edit</button>
       </div>
-      
-      <div class="pay-action-container">
-        <button class="btn-pay" id="payBtn" type="button">
+
+      <!-- Order Review Card -->
+      <div class="checkout-card">
+        <h2>Order Summary</h2>
+        <div class="cart-items" id="cartItemsContainer">
+          <!-- JS injected items -->
+        </div>
+        
+        <div class="summary-totals">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="summarySubtotal">₹0</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span style="color: #2e7d32; font-weight: 600;">Free</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total Amount</span>
+            <span id="summaryTotal">₹0</span>
+          </div>
+        </div>
+        
+        <button class="btn-action" id="payBtn" type="button">
           <svg id="paySpinner" style="display:none; animation:spin 1s linear infinite;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
-          Proceed to Payment
+          Pay Now
         </button>
+
+        <button class="btn-action btn-back" id="btnBackToAddress" type="button">
+          Back to Address
+        </button>
+
         <div style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #666; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           Secured by Razorpay
         </div>
       </div>
     </div>
+
   </div>
 
   <div class="modal-overlay" id="paymentModal">
@@ -288,7 +390,7 @@
       const cart = JSON.parse(localStorage.getItem('ao_cart') || '[]');
 
       if (cart.length === 0) {
-        window.location.href = 'index.html'; // Assuming index.html is the shop page
+        window.location.href = 'index.html';
         return;
       }
 
@@ -313,11 +415,36 @@
         `;
       });
 
-      const totalAmount = subtotal; // Free shipping
+      const totalAmount = subtotal;
 
       document.getElementById('summarySubtotal').innerText = '₹' + subtotal;
       document.getElementById('summaryTotal').innerText = '₹' + totalAmount;
 
+      // Views and Stepper Navigation
+      const step1View = document.getElementById('step1View');
+      const step2View = document.getElementById('step2View');
+      const navStep1 = document.getElementById('navStep1');
+      const navStep2 = document.getElementById('navStep2');
+
+      function goToStep(step) {
+        if (step === 1) {
+          step1View.style.display = 'block';
+          step2View.style.display = 'none';
+          
+          navStep1.className = 'step-item active';
+          navStep2.className = 'step-item';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (step === 2) {
+          step1View.style.display = 'none';
+          step2View.style.display = 'block';
+
+          navStep1.className = 'step-item completed';
+          navStep2.className = 'step-item active';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      // Read form data
       function readCheckoutForm() {
         return {
           customer_name: document.getElementById('custName').value,
@@ -335,6 +462,27 @@
           }
         };
       }
+
+      // Populate review card in Step 2
+      function updateAddressReview() {
+        const formData = readCheckoutForm();
+        document.getElementById('reviewName').innerText = formData.customer_name;
+        const addr = formData.shipping_address;
+        document.getElementById('reviewAddress').innerText = `${addr.house}, ${addr.street}, ${addr.city}, ${addr.district}, ${addr.state} - ${addr.pin}`;
+        document.getElementById('reviewContact').innerText = `${formData.customer_phone} | ${formData.customer_email}`;
+      }
+
+      // Form submit in Step 1 -> Move to Step 2
+      const addressForm = document.getElementById('addressForm');
+      addressForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        updateAddressReview();
+        goToStep(2);
+      });
+
+      // Edit address button in Step 2
+      document.getElementById('btnEditAddress').addEventListener('click', () => goToStep(1));
+      document.getElementById('btnBackToAddress').addEventListener('click', () => goToStep(1));
 
       async function createPendingOrder() {
         const orderNumber = 'ORD-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);
@@ -398,20 +546,12 @@
       }
 
       payBtn.addEventListener('click', async (e) => {
-        // Prevent default form submission if it's somehow wrapped in a form, though it's type="button"
         e.preventDefault();
-
-        const form = document.getElementById('checkoutForm');
-        if (!form.checkValidity()) {
-          form.reportValidity();
-          return;
-        }
 
         payBtn.disabled = true;
         paySpinner.style.display = 'inline-block';
 
         try {
-          // Check if Razorpay script is loaded before doing database work
           if (typeof window.Razorpay === 'undefined') {
              throw new Error('Payment gateway failed to load. Please disable adblockers or check your internet connection.');
           }
@@ -435,12 +575,12 @@
 
           // 3. Setup Razorpay Checkout Options
           const options = {
-            key: rzpOrder.key_id, // Passed from edge function
-            amount: rzpOrder.amount, // in paise
+            key: rzpOrder.key_id,
+            amount: rzpOrder.amount,
             currency: rzpOrder.currency,
             name: 'AYHAAN OPULENT',
             description: `Order ${orderNumber}`,
-            image: 'https://placehold.co/100x100/2a2622/c5a059?text=AO', // Optional logo
+            image: 'https://placehold.co/100x100/2a2622/c5a059?text=AO',
             order_id: rzpOrder.order_id,
             handler: async function (response) {
               // 4. Verify Payment Tokens via Edge Function
@@ -457,11 +597,9 @@
                 });
 
                 if (!verifyError && verifyData && verifyData.verified) {
-                  // Clear cart on success
                   localStorage.removeItem('ao_cart');
                   showModal('success', 'Payment Successful!', `Your order ${orderNumber} has been confirmed. Please click below to send the delivery details to our WhatsApp.`);
 
-                  // Construct WhatsApp message
                   const address = orderData.shipping_address;
                   const waText = `*New Order Confirmed!* 🎊\n*Order No:* ${orderNumber}\n*Total Paid:* ₹${totalAmount}\n\n*Customer Details:*\nName: ${orderData.customer_name}\nPhone: ${orderData.customer_phone}\nEmail: ${orderData.customer_email}\n\n*Delivery Address:*\n${address.house}, ${address.street}\n${address.city}, ${address.district}\n${address.state} - ${address.pin}\nCountry: ${address.country}\n${address.instructions ? `\n*Instructions:* ${address.instructions}` : ''}`;
 
@@ -491,14 +629,12 @@
             modal: {
               ondismiss: function () {
                 showModal('error', 'Payment Cancelled', 'You cancelled the payment. Your order has been saved but remains unpaid.');
-                // Re-enable pay button so they can try again
                 payBtn.disabled = false;
                 paySpinner.style.display = 'none';
               }
             }
           };
 
-          // Open Razorpay Popup
           const rzp = new window.Razorpay(options);
           rzp.on('payment.failed', function (response) {
             showModal('error', 'Payment Failed', response.error.description);
