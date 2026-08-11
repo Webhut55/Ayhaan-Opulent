@@ -11,8 +11,8 @@
     --off-white: #FDFBF7;
     --gold: #C5A059;
     --gold-deep: #A9824A;
-    --charcoal: rgb(158, 106, 104);
-    --charcoal-soft: rgb(158, 106, 104);
+    --charcoal: #636B2F;
+    --charcoal-soft: #636B2F;
     --line: #E8E2D8;
     --serif: 'Playfair Display', 'Cormorant Garamond', serif;
     --sans: 'Plus Jakarta Sans', sans-serif;
@@ -92,6 +92,9 @@
   @media (max-width: 900px) {
     .container { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.5rem; }
     .order-summary { order: -1; }
+  }
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
   }
 </style>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

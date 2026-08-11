@@ -14,8 +14,8 @@
     --gold:#C5A059;
     --gold-deep:#A9824A;
     --gold-pale:#EFE4CE;
-    --charcoal:rgb(158, 106, 104);
-    --charcoal-soft:rgb(158, 106, 104);
+    --charcoal:#636B2F;
+    --charcoal-soft:#636B2F;
     --line:#E8E2D8;
     --danger:#B5473C;
     --radius-s:2px;
@@ -314,7 +314,7 @@
   .footer-grid ul a:hover{color:var(--gold);}
 
   /* ---------- Cart Drawer ---------- */
-  .overlay{position:fixed; inset:0; background:rgba(158, 106, 104,.5); opacity:0; pointer-events:none; transition:opacity .3s var(--ease); z-index:300;}
+  .overlay{position:fixed; inset:0; background:rgba(99, 107, 47,.5); opacity:0; pointer-events:none; transition:opacity .3s var(--ease); z-index:300;}
   .overlay.open{opacity:1; pointer-events:auto;}
   .cart-drawer{position:fixed; top:0; right:0; height:100%; width:min(420px, 92vw); background:var(--white); z-index:301; transform:translateX(100%); transition:transform .4s var(--ease); display:flex; flex-direction:column; box-shadow:-10px 0 40px rgba(0,0,0,.15);}
   .cart-drawer.open{transform:translateX(0);}
@@ -619,7 +619,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     grid.innerHTML = filtered.map(p => {
-      const imgUrl = p.image1 || p.image_url || p.imageUrl || 'https://placehold.co/600x750/FDFBF7/rgb(158,106,104)?text=Image';
+      const imgUrl = p.image1 || p.image_url || p.imageUrl || 'https://placehold.co/600x750/FDFBF7/636B2F?text=Image';
       return `
       <div class="product-card" data-id="${p.id}">
         <div class="product-media">
@@ -678,6 +678,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderCart();
   }
 
+  window.removeItem = function(id) {
+    cart = cart.filter(i => i.id !== id && i.id != id);
+    saveCart();
+    renderCart();
+  }
+
   function saveCart() {
       localStorage.setItem('ao_cart', JSON.stringify(cart));
   }
@@ -700,8 +706,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         <div class="cart-line">
           <img src="${item.image || 'https://placehold.co/70x88/eee/999'}" alt="${item.name}">
           <div class="cart-line-info">
-            <div>
-              <h4>${item.name}</h4>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <h4 style="margin-right: 1rem;">${item.name}</h4>
+              <button onclick="window.removeItem('${item.id}')" style="color:var(--charcoal-soft); padding:0; display:flex; align-items:center;" aria-label="Remove item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </button>
             </div>
             <div class="cart-line-bottom">
               <div class="qty-control">
