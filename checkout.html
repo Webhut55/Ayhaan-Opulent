@@ -217,6 +217,26 @@
       color: #A0A0A0;
     }
 
+    /* Delivery Rate Notice Badge */
+    .shipping-rate-banner {
+      background: #F2F5E8;
+      border: 1px solid #C5D0A2;
+      color: var(--charcoal-dark);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-s);
+      font-size: 0.825rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+      font-weight: 500;
+    }
+
+    .shipping-rate-banner svg {
+      color: var(--charcoal);
+      flex-shrink: 0;
+    }
+
     /* Address Summary Box on Step 2 */
     .address-review-card {
       background: var(--gold-light);
@@ -332,6 +352,7 @@
     .summary-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 0.6rem;
       font-size: 0.9rem;
       color: var(--text-muted);
@@ -348,6 +369,17 @@
 
     .summary-row.total .total-price {
       color: var(--charcoal);
+    }
+
+    .kerala-badge {
+      background: #EAF3DF;
+      color: var(--charcoal);
+      font-size: 0.725rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.3rem;
+      border: 1px solid #C0D69F;
     }
 
     /* CTA Actions */
@@ -478,7 +510,6 @@
 
     /* Mobile Breakpoint Optimizations */
     @media (max-width: 640px) {
-      /* Prevent iOS Safari input auto-zoom by maintaining 16px minimum */
       input, textarea, select {
         font-size: 16px !important;
         padding: 0.8rem;
@@ -491,20 +522,6 @@
 
       .header {
         padding: 0.85rem 1rem;
-      }
-
-      .steps-nav {
-        margin-top: 0.6rem;
-      }
-
-      .step-item {
-        font-size: 0.725rem;
-      }
-
-      .step-number {
-        width: 20px;
-        height: 20px;
-        font-size: 0.7rem;
       }
 
       .container {
@@ -529,37 +546,6 @@
       .btn-edit-address {
         align-self: flex-end;
         margin-top: 0.5rem;
-      }
-
-      /* Mobile Sticky Action Bar for seamless touch checkout */
-      .mobile-sticky-action {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom)) 1rem;
-        border-top: 1px solid var(--line);
-        box-shadow: var(--shadow-up);
-        z-index: 90;
-      }
-
-      .mobile-sticky-action .btn-action {
-        margin: 0 auto;
-        max-width: 600px;
-      }
-
-      .mobile-secured-tag {
-        text-align: center;
-        margin-top: 0.4rem;
-        font-size: 0.725rem;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.35rem;
       }
     }
   </style>
@@ -591,6 +577,14 @@
           <span>Shipping & Delivery</span>
           <span style="font-size: 0.75rem; font-family: var(--sans); font-weight: 500; color: var(--text-muted);">Step 1 of 2</span>
         </h2>
+
+        <!-- Kerala Shipping Information Notice -->
+        <div class="shipping-rate-banner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+          <div>
+            <strong>Special Kerala Delivery Charge:</strong> ₹70 / kg applied for all locations within Kerala.
+          </div>
+        </div>
         
         <form id="addressForm">
           <div class="form-group">
@@ -624,22 +618,22 @@
           <div class="form-row">
             <div class="form-group">
               <label for="shipCity">City *</label>
-              <input type="text" id="shipCity" required placeholder="Mumbai" autocomplete="address-level2">
+              <input type="text" id="shipCity" required placeholder="Kochi" autocomplete="address-level2">
             </div>
             <div class="form-group">
               <label for="shipDistrict">District *</label>
-              <input type="text" id="shipDistrict" required placeholder="Mumbai City">
+              <input type="text" id="shipDistrict" required placeholder="Ernakulam">
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
               <label for="shipState">State *</label>
-              <input type="text" id="shipState" required placeholder="Maharashtra" autocomplete="address-level1">
+              <input type="text" id="shipState" required placeholder="Kerala" value="Kerala" autocomplete="address-level1">
             </div>
             <div class="form-group">
               <label for="shipPin">PIN Code *</label>
-              <input type="text" id="shipPin" required placeholder="400001" pattern="[0-9]{5,8}" autocomplete="postal-code">
+              <input type="text" id="shipPin" required placeholder="682001" pattern="[0-9]{5,8}" autocomplete="postal-code">
             </div>
           </div>
           
@@ -656,7 +650,7 @@
           <!-- Desktop Action -->
           <div class="desktop-action-wrapper" style="margin-top: 1.5rem;">
             <button class="btn-action" type="submit" id="btnToPayment">
-              <span>Proceed to Payment</span>
+              <span>Proceed to Order Summary</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
           </div>
@@ -672,7 +666,7 @@
         <div class="address-review-details">
           <div class="address-review-header">Delivering To</div>
           <div class="address-review-name" id="reviewName">Jane Doe</div>
-          <div id="reviewAddress" style="color: var(--text-main);">Apt 4B, Main Street, Mumbai, Maharashtra - 400001</div>
+          <div id="reviewAddress" style="color: var(--text-main);">Apt 4B, Main Street, Kochi, Kerala - 682001</div>
           <div id="reviewContact" style="margin-top: 0.35rem; color: var(--text-muted); font-size: 0.825rem; font-weight: 500;">+91 9876543210 | jane@example.com</div>
         </div>
         <button type="button" class="btn-edit-address" id="btnEditAddress">Edit Address</button>
@@ -695,8 +689,11 @@
             <span id="summarySubtotal">₹0</span>
           </div>
           <div class="summary-row">
-            <span>Shipping Fee</span>
-            <span style="color: #2E7D32; font-weight: 600;">FREE</span>
+            <span>
+              Shipping Fee
+              <span id="shippingRateBadge" class="kerala-badge">Kerala @ ₹70/kg</span>
+            </span>
+            <span id="summaryShipping">₹70</span>
           </div>
           <div class="summary-row total">
             <span>Total Payable</span>
@@ -734,7 +731,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Retrieve cart items
       const cart = JSON.parse(localStorage.getItem('ao_cart') || '[]');
 
       if (cart.length === 0) {
@@ -742,12 +738,10 @@
         return;
       }
 
-      // 2. Initialize Supabase
       const SUPABASE_URL = "https://orjxoslyjonedljqnzgu.supabase.co";
       const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yanhvc2x5am9uZWRsanFuemd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTMzMjAsImV4cCI6MjEwMTY4OTMyMH0.dWvnC8CkaUg-uNw2S0rNKklBOwx3ai6bMdI-ZA3RG3I";
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // 3. Render Cart Summary
       const itemsContainer = document.getElementById('cartItemsContainer');
       let subtotal = 0;
 
@@ -758,19 +752,72 @@
             <img src="${item.image || 'https://placehold.co/60x75/2a2e14/ffffff?text=Product'}" alt="${item.name}" onerror="this.src='https://placehold.co/60x75/2a2e14/ffffff?text=Product'">
             <div class="item-info">
               <div class="item-name">${item.name}</div>
-              <div class="item-meta">Qty: ${item.qty}</div>
+              <div class="item-meta">Qty: ${item.qty} ${item.weight ? `| Est. Wt: ${item.weight}kg` : ''}</div>
             </div>
             <div class="item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
           </div>
         `;
       });
 
-      const totalAmount = subtotal;
+      // Function to calculate shipping fee based on location & weight
+      function calculateShipping() {
+        const stateInput = document.getElementById('shipState').value.trim();
+        const isKerala = stateInput.toLowerCase().includes('kerala');
+        
+        // Calculate total weight in KG (defaults to 1 kg per item if weight is unassigned)
+        let totalWeightKg = 0;
+        cart.forEach(item => {
+          let w = parseFloat(item.weight);
+          if (!w || isNaN(w) || w <= 0) {
+            w = 1; // Default 1 kg per piece/item
+          } else if (w > 20) {
+            w = w / 1000; // Convert grams to KG if value > 20
+          }
+          totalWeightKg += w * item.qty;
+        });
 
-      document.getElementById('summarySubtotal').innerText = '₹' + subtotal.toLocaleString('en-IN');
-      document.getElementById('summaryTotal').innerText = '₹' + totalAmount.toLocaleString('en-IN');
+        // Minimum billable weight = 1 kg
+        const billableWeight = Math.max(1, Math.ceil(totalWeightKg));
+        
+        // Delivery Charge: ₹70/kg inside Kerala, ₹120/kg outside Kerala
+        const ratePerKg = isKerala ? 70 : 120;
+        const shippingFee = billableWeight * ratePerKg;
+        const totalAmount = subtotal + shippingFee;
 
-      // 4. Views and Stepper Navigation Logic
+        return {
+          isKerala,
+          totalWeightKg,
+          billableWeight,
+          ratePerKg,
+          shippingFee,
+          totalAmount
+        };
+      }
+
+      function updateTotalsUI() {
+        const shippingInfo = calculateShipping();
+        
+        document.getElementById('summarySubtotal').innerText = '₹' + subtotal.toLocaleString('en-IN');
+        document.getElementById('summaryShipping').innerText = '₹' + shippingInfo.shippingFee.toLocaleString('en-IN');
+        document.getElementById('summaryTotal').innerText = '₹' + shippingInfo.totalAmount.toLocaleString('en-IN');
+
+        const badge = document.getElementById('shippingRateBadge');
+        if (shippingInfo.isKerala) {
+          badge.textContent = `Kerala @ ₹70/kg (${shippingInfo.billableWeight}kg)`;
+          badge.className = 'kerala-badge';
+        } else {
+          badge.textContent = `Standard @ ₹${shippingInfo.ratePerKg}/kg (${shippingInfo.billableWeight}kg)`;
+          badge.className = 'kerala-badge';
+          badge.style.background = '#F3F4F6';
+          badge.style.color = '#374151';
+          badge.style.borderColor = '#D1D5DB';
+        }
+      }
+
+      // Live update totals when changing state
+      document.getElementById('shipState').addEventListener('input', updateTotalsUI);
+      updateTotalsUI();
+
       const step1View = document.getElementById('step1View');
       const step2View = document.getElementById('step2View');
       const navStep1 = document.getElementById('navStep1');
@@ -794,56 +841,57 @@
         }
       }
 
-      // Read form data
       function readCheckoutForm() {
         return {
-          customer_name: document.getElementById('custName').value.trim(),
-          customer_email: document.getElementById('custEmail').value.trim(),
-          customer_phone: document.getElementById('custPhone').value.trim(),
+          customer_name: document.getElementById('custName').value,
+          customer_email: document.getElementById('custEmail').value,
+          customer_phone: document.getElementById('custPhone').value,
           shipping_address: {
-            house: document.getElementById('shipHouse').value.trim(),
-            street: document.getElementById('shipStreet').value.trim(),
-            city: document.getElementById('shipCity').value.trim(),
-            district: document.getElementById('shipDistrict').value.trim(),
-            state: document.getElementById('shipState').value.trim(),
-            pin: document.getElementById('shipPin').value.trim(),
-            country: document.getElementById('shipCountry').value.trim(),
-            instructions: document.getElementById('shipInst').value.trim()
+            house: document.getElementById('shipHouse').value,
+            street: document.getElementById('shipStreet').value,
+            city: document.getElementById('shipCity').value,
+            district: document.getElementById('shipDistrict').value,
+            state: document.getElementById('shipState').value,
+            pin: document.getElementById('shipPin').value,
+            country: document.getElementById('shipCountry').value,
+            instructions: document.getElementById('shipInst').value
           }
         };
       }
 
-      // Populate review card on Step 2
-      function updateAddressReview() {
-        const formData = readCheckoutForm();
-        document.getElementById('reviewName').innerText = formData.customer_name;
-        const addr = formData.shipping_address;
-        document.getElementById('reviewAddress').innerText = `${addr.house}, ${addr.street}, ${addr.city}, ${addr.district}, ${addr.state} - ${addr.pin}`;
-        document.getElementById('reviewContact').innerText = `${formData.customer_phone} | ${formData.customer_email}`;
-      }
-
-      // Form Submit handler in Step 1
-      const addressForm = document.getElementById('addressForm');
-      addressForm.addEventListener('submit', (e) => {
+      // Step 1 Form Submission
+      document.getElementById('addressForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        updateAddressReview();
+        const form = e.target;
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        const formData = readCheckoutForm();
+        document.getElementById('reviewName').textContent = formData.customer_name;
+        document.getElementById('reviewAddress').textContent = `${formData.shipping_address.house}, ${formData.shipping_address.street}, ${formData.shipping_address.city}, ${formData.shipping_address.state} - ${formData.shipping_address.pin}`;
+        document.getElementById('reviewContact').textContent = `${formData.customer_phone} | ${formData.customer_email}`;
+
+        updateTotalsUI();
         goToStep(2);
       });
 
-      // Navigation Buttons
       document.getElementById('btnEditAddress').addEventListener('click', () => goToStep(1));
       document.getElementById('btnBackToAddress').addEventListener('click', () => goToStep(1));
 
-      // 5. Database Order Creation
       async function createPendingOrder() {
         const orderNumber = 'ORD-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);
         const formData = readCheckoutForm();
+        const shippingInfo = calculateShipping();
 
         const orderData = {
           order_number: orderNumber,
           ...formData,
           subtotal: subtotal,
-          total_amount: totalAmount,
+          shipping_fee: shippingInfo.shippingFee,
+          total_weight_kg: shippingInfo.billableWeight,
+          total_amount: shippingInfo.totalAmount,
           order_status: 'pending',
           payment_status: 'pending'
         };
@@ -860,15 +908,12 @@
           unit_price: item.price,
           total_price: item.qty * item.price
         }));
-
         await supabase.from('order_items').insert(orderItemsData);
 
-        return { orderNumber, insertedOrder, orderData };
+        return { orderNumber, insertedOrder, orderData, shippingInfo };
       }
 
-      // 6. Razorpay Payment Trigger
       const payBtn = document.getElementById('payBtn');
-      const payBtnText = document.getElementById('payBtnText');
       const paySpinner = document.getElementById('paySpinner');
       const modal = document.getElementById('paymentModal');
       const modalTitle = document.getElementById('modalTitle');
@@ -885,39 +930,30 @@
           modalIcon.innerHTML = '<div style="width:36px; height:36px; border:3px solid var(--line); border-top-color:var(--gold-deep); border-radius:50%; animation:spin 0.8s linear infinite;"></div>';
           modalCloseBtn.style.display = 'none';
         } else if (state === 'success') {
-          modalIcon.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
-          modalIcon.style.background = '#E8F5E9';
-          modalCloseBtn.style.display = 'block';
-          modalCloseBtn.textContent = 'View Order';
-          modalCloseBtn.onclick = () => window.location.href = `track-order.html`;
+          modalIcon.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+          modalIcon.style.background = '#e8f5e9';
+          modalCloseBtn.style.display = 'inline-block';
         } else if (state === 'error') {
-          modalIcon.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
-          modalIcon.style.background = '#FFEBEE';
-          modalCloseBtn.style.display = 'block';
+          modalIcon.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+          modalIcon.style.background = '#ffebee';
+          modalCloseBtn.style.display = 'inline-block';
           modalCloseBtn.textContent = 'Close';
           modalCloseBtn.onclick = () => modal.style.display = 'none';
         }
       }
 
-      payBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-
+      payBtn.addEventListener('click', async () => {
         payBtn.disabled = true;
         paySpinner.style.display = 'inline-block';
-        if (payBtnText) payBtnText.textContent = 'Processing...';
 
         try {
-          if (typeof window.Razorpay === 'undefined') {
-             throw new Error('Payment gateway failed to load. Please check your network connection.');
-          }
+          // 1. Create Pending Order in Supabase DB
+          const { orderNumber, orderData, shippingInfo } = await createPendingOrder();
 
-          // Step 1: Record pending order in Supabase
-          const { orderNumber, orderData } = await createPendingOrder();
-
-          // Step 2: Invoke Razorpay Order handler via Supabase function
+          // 2. Call Edge Function to create Razorpay Order
           const { data: rzpOrder, error: createError } = await supabase.functions.invoke('razorpay-handler', {
             body: {
-              amount: totalAmount,
+              amount: shippingInfo.totalAmount,
               currency: 'INR',
               receipt: orderNumber,
               customer: { name: orderData.customer_name, email: orderData.customer_email }
@@ -925,20 +961,20 @@
           });
 
           if (createError || !rzpOrder) {
-            throw new Error((createError && createError.message) || 'Failed to initialize payment order.');
+            throw new Error((createError && createError.message) || 'Failed to initialize payment gateway.');
           }
 
-          // Step 3: Configure Razorpay Checkout modal
+          // 3. Setup Razorpay Checkout Options
           const options = {
             key: rzpOrder.key_id,
             amount: rzpOrder.amount,
             currency: rzpOrder.currency,
             name: 'AYHAAN OPULENT',
             description: `Order ${orderNumber}`,
-            image: 'https://placehold.co/100x100/2a2e14/ffffff?text=AO',
+            image: 'https://placehold.co/100x100/2a2622/c5a059?text=AO',
             order_id: rzpOrder.order_id,
             handler: async function (response) {
-              showModal('loading', 'Verifying Payment', 'Please wait while we confirm your payment status...');
+              showModal('loading', 'Verifying Payment', 'Please wait while we confirm your payment...');
 
               try {
                 const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
@@ -952,24 +988,40 @@
 
                 if (!verifyError && verifyData && verifyData.verified) {
                   localStorage.removeItem('ao_cart');
-                  showModal('success', 'Payment Successful!', `Your order ${orderNumber} has been placed. Send your delivery details on WhatsApp to finalize processing.`);
+                  showModal('success', 'Payment Successful!', `Your order ${orderNumber} has been confirmed. Please click below to send the delivery details to our WhatsApp.`);
 
                   const address = orderData.shipping_address;
-                  const waText = `*New Order Confirmed!* 🎊\n*Order No:* ${orderNumber}\n*Total Paid:* ₹${totalAmount.toLocaleString('en-IN')}\n\n*Customer:* ${orderData.customer_name}\n*Phone:* ${orderData.customer_phone}\n*Email:* ${orderData.customer_email}\n\n*Delivery Address:*\n${address.house}, ${address.street}\n${address.city}, ${address.district}\n${address.state} - ${address.pin}\nCountry: ${address.country}\n${address.instructions ? `\n*Instructions:* ${address.instructions}` : ''}`;
+                  const waText = `*New Order Confirmed!* 🎊
+*Order No:* ${orderNumber}
+*Subtotal:* ₹${subtotal}
+*Delivery Fee (${shippingInfo.isKerala ? 'Kerala @ ₹70/kg' : 'Outside Kerala'}):* ₹${shippingInfo.shippingFee}
+*Total Paid:* ₹${shippingInfo.totalAmount}
+
+*Customer Details:*
+Name: ${orderData.customer_name}
+Phone: ${orderData.customer_phone}
+Email: ${orderData.customer_email}
+
+*Delivery Address:*
+${address.house}, ${address.street}
+${address.city}, ${address.district}
+${address.state} - ${address.pin}
+Country: ${address.country}
+${address.instructions ? `\n*Instructions:* ${address.instructions}` : ''}`;
 
                   const waUrl = `https://wa.me/918590529249?text=${encodeURIComponent(waText)}`;
 
-                  modalCloseBtn.textContent = 'Send Details via WhatsApp';
+                  modalCloseBtn.textContent = 'Send via WhatsApp';
                   modalCloseBtn.onclick = () => {
                     window.open(waUrl, '_blank');
-                    window.location.href = 'index.html'; 
+                    window.location.href = 'index.html';
                   };
                 } else {
-                  throw new Error('Payment verification signature mismatch.');
+                  throw new Error('Signature verification failed.');
                 }
               } catch (err) {
                 console.error(err);
-                showModal('error', 'Verification Error', 'Payment processed but verification failed. Please contact customer support.');
+                showModal('error', 'Verification Failed', 'Payment was processed but verification failed. Please contact support if amount was deducted.');
               }
             },
             prefill: {
@@ -977,34 +1029,29 @@
               email: orderData.customer_email,
               contact: orderData.customer_phone
             },
-            theme: {
-              color: '#636B2F' 
-            },
+            theme: { color: '#636B2F' },
             modal: {
               ondismiss: function () {
-                showModal('error', 'Payment Cancelled', 'You cancelled the payment transaction.');
-                payBtn.disabled = false;
-                paySpinner.style.display = 'none';
-                if (payBtnText) payBtnText.textContent = 'Pay Now';
+                showModal('error', 'Payment Cancelled', 'You cancelled the payment. Your order has been saved but remains unpaid.');
               }
             }
           };
 
+          if (typeof window.Razorpay === 'undefined') {
+            throw new Error('Payment gateway failed to load. Please check your internet connection.');
+          }
           const rzp = new window.Razorpay(options);
           rzp.on('payment.failed', function (response) {
-            showModal('error', 'Payment Failed', response.error.description || 'Transaction was declined.');
-            payBtn.disabled = false;
-            paySpinner.style.display = 'none';
-            if (payBtnText) payBtnText.textContent = 'Pay Now';
+            showModal('error', 'Payment Failed', response.error.description);
           });
           rzp.open();
 
         } catch (err) {
           console.error(err);
-          showModal('error', 'Unable to Complete Order', err.message || 'An unexpected error occurred.');
+          showModal('error', 'Something Went Wrong', err.message || 'An unexpected error occurred. Please try again.');
+        } finally {
           payBtn.disabled = false;
           paySpinner.style.display = 'none';
-          if (payBtnText) payBtnText.textContent = 'Pay Now';
         }
       });
     });
