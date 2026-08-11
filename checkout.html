@@ -94,6 +94,7 @@
     .order-summary { order: -1; }
   }
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -179,195 +180,24 @@
       </div>
     </div>
     
-    <button type="button" id="upiBtn" class="btn-pay">
-      <div class="spinner" id="upiSpinner"></div>
+    <button type="button" id="payBtn" class="btn-pay">
+      <div class="spinner" id="paySpinner"></div>
       Pay &amp; Continue
     </button>
   </div>
 </div>
 
-<!-- UPI payment status overlay -->
-<div id="upiOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center;">
-  <div style="background:var(--white); border-radius:var(--radius-m); padding:2.5rem; max-width:380px; width:90%; text-align:center;">
-    <div style="width:36px; height:36px; margin:0 auto 1.2rem; border:3px solid var(--line); border-top-color:var(--gold-deep); border-radius:50%; animation:spin 0.8s linear infinite;"></div>
-    <h3 style="font-family:var(--serif); font-size:1.2rem; margin-bottom:0.6rem;">Waiting for payment confirmation…</h3>
-    <p style="font-size:0.85rem; color:var(--charcoal-soft); margin-bottom:0.4rem;">Complete the payment in GPay/your UPI app. This page will update automatically once we receive it.</p>
-    <p style="font-size:0.8rem; color:var(--charcoal-soft); margin-bottom:1.5rem;">Order: <strong id="upiOrderNumLabel"></strong></p>
-    <button type="button" id="upiCancelBtn" style="background:none; border:1px solid var(--line); padding:0.7rem 1.4rem; border-radius:var(--radius-s); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; cursor:pointer;">Stop waiting</button>
+<!-- Payment Status Modal -->
+<div id="paymentModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+  <div style="background:var(--white); border-radius:var(--radius-m); padding:2.5rem; max-width:380px; width:90%; text-align:center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+    <div id="modalIcon" style="width:48px; height:48px; margin:0 auto 1.2rem; display:flex; align-items:center; justify-content:center; border-radius:50%;"></div>
+    <h3 id="modalTitle" style="font-family:var(--serif); font-size:1.4rem; margin-bottom:0.6rem;">Processing...</h3>
+    <p id="modalMessage" style="font-size:0.85rem; color:var(--charcoal-soft); margin-bottom:1.5rem; line-height: 1.5;"></p>
+    <button type="button" id="modalCloseBtn" style="background:var(--charcoal); color:var(--off-white); border:none; padding:0.8rem 1.6rem; border-radius:var(--radius-s); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight: 600; cursor:pointer; transition: background 0.3s; display:none;">Close</button>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  const cart = JSON.parse(localStorage.getItem('ao_cart') || '[]');
-  
-  if (cart.length === 0) {
-    alert("Your cart is empty. Redirecting to shop.");
-    window.location.href = 'index.html';
-    return;
-  }
-  
-  const SUPABASE_URL = "https://orjxoslyjonedljqnzgu.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yanhvc2x5am9uZWRsanFuemd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMTMzMjAsImV4cCI6MjEwMTY4OTMyMH0.dWvnC8CkaUg-uNw2S0rNKklBOwx3ai6bMdI-ZA3RG3I";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
-  const itemsContainer = document.getElementById('cartItemsContainer');
-  let subtotal = 0;
-  
-  cart.forEach(item => {
-    subtotal += item.price * item.qty;
-    itemsContainer.innerHTML += `
-      <div class="cart-item">
-        <img src="${item.image || 'https://placehold.co/60x75'}" alt="${item.name}">
-        <div class="item-info">
-          <div class="item-name">${item.name}</div>
-          <div class="item-meta">Qty: ${item.qty}</div>
-        </div>
-        <div class="item-price">₹${item.price * item.qty}</div>
-      </div>
-    `;
-  });
-  
-  const totalAmount = subtotal; // Assuming free shipping
-  
-  document.getElementById('summarySubtotal').innerText = '₹' + subtotal;
-  document.getElementById('summaryTotal').innerText = '₹' + totalAmount;
-  
-  function readCheckoutForm() {
-    return {
-      customer_name: document.getElementById('custName').value,
-      customer_email: document.getElementById('custEmail').value,
-      customer_phone: document.getElementById('custPhone').value,
-      shipping_address: {
-        house: document.getElementById('shipHouse').value,
-        street: document.getElementById('shipStreet').value,
-        city: document.getElementById('shipCity').value,
-        district: document.getElementById('shipDistrict').value,
-        state: document.getElementById('shipState').value,
-        pin: document.getElementById('shipPin').value,
-        country: document.getElementById('shipCountry').value,
-        instructions: document.getElementById('shipInst').value
-      }
-    };
-  }
-
-  // Creates the order + order_items rows in Supabase. order_status/payment_status always
-  // start as pending — nothing on this page ever sets them to paid.
-  async function createPendingOrder() {
-    const orderNumber = 'ORD-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);
-    const formData = readCheckoutForm();
-
-    const orderData = {
-      order_number: orderNumber,
-      ...formData,
-      subtotal: subtotal,
-      total_amount: totalAmount,
-      order_status: 'pending',
-      payment_status: 'pending'
-    };
-
-    const { data: insertedOrder, error: orderError } = await supabase.from('orders').insert([orderData]).select().single();
-    if (orderError) throw orderError;
-
-    const orderItemsData = cart.map(item => ({
-      order_id: insertedOrder.id,
-      product_id: item.id,
-      product_name: item.name,
-      product_image: item.image,
-      quantity: item.qty,
-      unit_price: item.price,
-      total_price: item.qty * item.price
-    }));
-    await supabase.from('order_items').insert(orderItemsData);
-
-    return { orderNumber, insertedOrder, orderData };
-  }
-
-  // ── Direct UPI flow ──────────────────────────────────────────────────────
-  // No payment gateway involved: this just opens a upi:// intent and then
-  // polls Supabase waiting for order_status to change. Something else (an
-  // edge function, a notification-based listener, or you manually in the
-  // admin panel) has to be the thing that actually flips it to 'PAID' —
-  // this page only ever reads that value, never sets it.
-  const UPI_PAYEE_VPA = "kasaniya55@okicici";
-  const UPI_PAYEE_NAME = "Ayhaan opulent";
-  let upiPollTimer = null;
-  let upiPollStopAt = null;
-
-  function stopUpiPolling() {
-    if (upiPollTimer) clearInterval(upiPollTimer);
-    upiPollTimer = null;
-    document.getElementById('upiOverlay').style.display = 'none';
-  }
-
-  function startUpiPolling(orderNumber) {
-    document.getElementById('upiOrderNumLabel').textContent = orderNumber;
-    document.getElementById('upiOverlay').style.display = 'flex';
-    // Give up after 10 minutes of polling rather than looping forever if the
-    // user abandons the tab or the payment never lands.
-    upiPollStopAt = Date.now() + 10 * 60 * 1000;
-
-    upiPollTimer = setInterval(async () => {
-      if (Date.now() > upiPollStopAt) {
-        stopUpiPolling();
-        alert("Still haven't received confirmation. If you've already paid, your order will update once it's verified — you can also check anytime on the Track Order page.");
-        window.location.href = `track-order.html?order=${orderNumber}`;
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('orders')
-        .select('order_status')
-        .eq('order_number', orderNumber)
-        .single();
-
-      if (!error && data && data.order_status === 'PAID') {
-        stopUpiPolling();
-        window.location.href = `/success.html?order=${orderNumber}`;
-      }
-    }, 3000);
-  }
-
-  document.getElementById('upiCancelBtn').addEventListener('click', () => {
-    stopUpiPolling();
-  });
-
-  document.getElementById('upiBtn').addEventListener('click', async () => {
-    const form = document.getElementById('checkoutForm');
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    const upiBtn = document.getElementById('upiBtn');
-    const upiSpinner = document.getElementById('upiSpinner');
-    upiBtn.disabled = true;
-    upiSpinner.style.display = 'inline-block';
-
-    try {
-      const { orderNumber } = await createPendingOrder();
-
-      const upiUrl =
-        `upi://pay?pa=${encodeURIComponent(UPI_PAYEE_VPA)}` +
-        `&pn=${encodeURIComponent(UPI_PAYEE_NAME)}` +
-        `&am=${encodeURIComponent(totalAmount)}` +
-        `&cu=INR` +
-        `&tn=${encodeURIComponent(orderNumber)}` +
-        `&tr=${encodeURIComponent(orderNumber)}`;
-
-      localStorage.removeItem('ao_cart');
-      startUpiPolling(orderNumber);
-      window.location.href = upiUrl;
-    } catch (err) {
-      alert("Error: " + err.message);
-    } finally {
-      upiBtn.disabled = false;
-      upiSpinner.style.display = 'none';
-    }
-  });
-
-});
-</script>
+<script src="../js/checkout.js"></script>
 </body>
 </html>
