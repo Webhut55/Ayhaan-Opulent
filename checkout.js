@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const cart = JSON.parse(localStorage.getItem('ao_cart') || '[]');
 
   if (cart.length === 0) {
-    alert("Your cart is empty. Redirecting to shop.");
     window.location.href = 'index.html';
     return;
   }
@@ -207,7 +206,7 @@ ${address.instructions ? `\n*Instructions:* ${address.instructions}` : ''}`;
           contact: orderData.customer_phone
         },
         theme: {
-          color: '#9e6a68' // Brand charcol color
+          color: '#636B2F' // Brand color
         },
         modal: {
           ondismiss: function () {
@@ -217,6 +216,9 @@ ${address.instructions ? `\n*Instructions:* ${address.instructions}` : ''}`;
       };
 
       // Open Razorpay Popup
+      if (typeof window.Razorpay === 'undefined') {
+        throw new Error('Payment gateway failed to load. Please check your internet connection and try again.');
+      }
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', function (response) {
         showModal('error', 'Payment Failed', response.error.description);
@@ -225,7 +227,7 @@ ${address.instructions ? `\n*Instructions:* ${address.instructions}` : ''}`;
 
     } catch (err) {
       console.error(err);
-      alert("Error: " + err.message);
+      showModal('error', 'Something Went Wrong', err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       payBtn.disabled = false;
       paySpinner.style.display = 'none';
