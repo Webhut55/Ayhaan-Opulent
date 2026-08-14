@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; worker-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AYHAAN OPULENT — Fine Anti-Tarnish Jewelry</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -718,6 +719,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   let PRODUCTS = [];
   let CATEGORIES = [];
   let cart = JSON.parse(localStorage.getItem('ao_cart') || '[]');
+  
+  // FIXED: selectedSizes initialized at the top level
+  let selectedSizes = {};
 
   function hideSpinner(){
     const s = document.getElementById('spinnerWrap');
@@ -858,20 +862,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function formatINR(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
 
-  // Tracks the size the shopper has tapped on each sized product card,
-  // keyed by product id, so Add to Cart / Quick Add know which variant to add.
-  let selectedSizes = {};
-
+  // RESTORED: the renderProducts function block that was accidentally deleted
   function renderProducts(filterCat) {
     const grid = document.getElementById('productGrid');
     const title = document.getElementById('collectionTitle');
-    title.textContent = filterCat === 'all' ? 'All Collections' : filterCat;
+    if (!grid) return;
 
-    let filtered = filterCat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filterCat);
+    if (title) {
+      title.textContent = filterCat === 'all' ? 'All Collections' : filterCat;
+    }
 
-    if(filtered.length === 0) {
-        grid.innerHTML = '<p class="empty-msg">No pieces found in this collection.</p>';
-        return;
+    const filtered = filterCat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filterCat);
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="empty-msg">No products available in this collection yet.</div>';
+      return;
     }
 
     grid.innerHTML = filtered.map(p => {
@@ -899,7 +904,6 @@ window.addEventListener('DOMContentLoaded', async () => {
           ? `<div class="stock-label${Number(chosenSize.stock) <= 0 ? ' out' : ''}">${Number(chosenSize.stock) <= 0 ? 'Out of Stock' : Number(chosenSize.stock) + ' in stock'}</div>`
           : `<div class="stock-label">${outOfStock ? 'Out of Stock — all sizes' : 'Select a size'}</div>`;
       } else {
-        // Stock is only shown once a numeric stock value exists on the product row.
         const hasStock = p.stock !== undefined && p.stock !== null && p.stock !== '';
         const stockNum = hasStock ? Number(p.stock) : null;
         outOfStock = hasStock && stockNum <= 0;
