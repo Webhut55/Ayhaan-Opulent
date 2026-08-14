@@ -751,7 +751,7 @@
           <div class="cart-item">
             <img src="${item.image || 'https://placehold.co/60x75/2a2e14/ffffff?text=Product'}" alt="${item.name}" onerror="this.src='https://placehold.co/60x75/2a2e14/ffffff?text=Product'">
             <div class="item-info">
-              <div class="item-name">${item.name}</div>
+              <div class="item-name">${item.name}${item.size ? ` (Size ${item.size})` : ''}</div>
               <div class="item-meta">Qty: ${item.qty} ${item.weight ? `| Est. Wt: ${item.weight}kg` : ''}</div>
             </div>
             <div class="item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
@@ -906,7 +906,8 @@
           product_image: item.image,
           quantity: item.qty,
           unit_price: item.price,
-          total_price: item.qty * item.price
+          total_price: item.qty * item.price,
+          selected_size: item.size || null
         }));
         await supabase.from('order_items').insert(orderItemsData);
 

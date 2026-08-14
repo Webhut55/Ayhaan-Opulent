@@ -321,6 +321,26 @@
   .product-info h3{font-family:var(--serif); font-weight:500; font-size:1rem; margin-bottom:.4rem; line-height:1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
   .price-row{display:flex; align-items:baseline; gap:.55rem;}
   .price-now{font-size:.95rem; font-weight:700;}
+  .stock-label{font-size:.68rem; color:var(--charcoal-soft); font-weight:600; margin-top:.35rem;}
+  .stock-label.out{color:var(--danger);}
+  .size-label{font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--charcoal-soft); font-weight:700; margin-top:.6rem; margin-bottom:.35rem;}
+  .size-select{display:flex; flex-wrap:wrap; gap:.4rem;}
+  .size-chip{
+    min-width:34px; padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px;
+    background:var(--white); font-size:.72rem; font-weight:600; color:var(--ink);
+    transition:border-color .2s var(--ease), background .2s var(--ease), color .2s var(--ease);
+  }
+  .size-chip:hover{border-color:var(--gold-deep);}
+  .size-chip.active{background:var(--ink); border-color:var(--ink); color:var(--off-white);}
+  .size-chip.disabled, .size-chip:disabled{opacity:.35; text-decoration:line-through; cursor:not-allowed; pointer-events:none;}
+  .add-cart-btn{
+    display:block; width:100%; margin-top:.75rem;
+    background:var(--ink); color:var(--off-white); text-align:center;
+    padding:.75rem; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; font-weight:600;
+    border-radius:var(--radius-s); transition:background .2s var(--ease), transform .2s var(--ease);
+  }
+  .add-cart-btn:hover{background:var(--gold-deep); transform:translateY(-1px);}
+  .add-cart-btn:disabled{background:#D8D3C6; color:#8A8672; cursor:not-allowed; transform:none;}
   .empty-msg{grid-column:1/-1; text-align:center; padding:3rem 0; color:#8A8672;}
 
   .care-about{background:var(--off-white);}
@@ -794,6 +814,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       catScroll.innerHTML = cardsHTML;
     }
 
+    if (heroRes.error) console.error("Hero slides fetch error:", heroRes.error.message);
+    if (catRes.error) console.error("Categories fetch error:", catRes.error.message);
+    if (prodRes.error) console.error("Products fetch error:", prodRes.error.message);
+
     if (!prodRes.error && prodRes.data) {
       PRODUCTS = prodRes.data;
       renderProducts('all');
@@ -834,6 +858,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function formatINR(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
 
+  // Tracks the size the shopper has tapped on each sized product card,
+  // keyed by product id, so Add to Cart / Quick Add know which variant to add.
+  let selectedSizes = {};
+
   function renderProducts(filterCat) {
     const grid = document.getElementById('productGrid');
     const title = document.getElementById('collectionTitle');
@@ -848,12 +876,44 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     grid.innerHTML = filtered.map(p => {
       const imgUrl = p.image1 || p.image_url || p.imageUrl || 'https://placehold.co/600x750/FDFBF7/636B2F?text=Image';
+
+      const hasSizes = !!p.size_type && Array.isArray(p.sizes) && p.sizes.length > 0;
+      let outOfStock, stockHTML, sizeBlockHTML = '';
+
+      if (hasSizes) {
+        outOfStock = p.sizes.every(s => Number(s.stock) <= 0);
+
+        const chipsHTML = p.sizes.map(s => {
+          const sOut = Number(s.stock) <= 0;
+          const isActive = selectedSizes[p.id] === s.size;
+          return `<button type="button" class="size-chip${sOut ? ' disabled' : ''}${isActive ? ' active' : ''}" ${sOut ? 'disabled' : ''} onclick="window.pickSize('${p.id}','${s.size}', this)">${s.size}</button>`;
+        }).join('');
+
+        sizeBlockHTML = `
+          <div class="size-label">${p.size_type === 'ring' ? 'Ring Size' : 'Bangle Size'}</div>
+          <div class="size-select">${chipsHTML}</div>`;
+
+        const chosen = selectedSizes[p.id];
+        const chosenSize = chosen ? p.sizes.find(s => s.size === chosen) : null;
+        stockHTML = chosenSize
+          ? `<div class="stock-label${Number(chosenSize.stock) <= 0 ? ' out' : ''}">${Number(chosenSize.stock) <= 0 ? 'Out of Stock' : Number(chosenSize.stock) + ' in stock'}</div>`
+          : `<div class="stock-label">${outOfStock ? 'Out of Stock — all sizes' : 'Select a size'}</div>`;
+      } else {
+        // Stock is only shown once a numeric stock value exists on the product row.
+        const hasStock = p.stock !== undefined && p.stock !== null && p.stock !== '';
+        const stockNum = hasStock ? Number(p.stock) : null;
+        outOfStock = hasStock && stockNum <= 0;
+        stockHTML = hasStock
+          ? `<div class="stock-label${outOfStock ? ' out' : ''}">${outOfStock ? 'Out of Stock' : stockNum + ' in stock'}</div>`
+          : '';
+      }
+
       return `
       <div class="product-card" data-id="${p.id}">
         <div class="product-media">
           <span class="badge-pill">Anti-Tarnish</span>
           <img src="${imgUrl}" alt="${p.name}" loading="lazy">
-          <button class="quick-add" onclick="window.addToCart('${p.id}')">+ Add to Bag</button>
+          <button class="quick-add" ${outOfStock ? 'disabled' : ''} onclick="window.addToCart('${p.id}')">${outOfStock ? 'Out of Stock' : '+ Add to Bag'}</button>
         </div>
         <div class="product-info">
           <div class="cat">${p.category || 'Collection'}</div>
@@ -861,10 +921,32 @@ window.addEventListener('DOMContentLoaded', async () => {
           <div class="price-row">
             <span class="price-now">${formatINR(p.price)}</span>
           </div>
+          ${sizeBlockHTML}
+          ${stockHTML}
+          <button class="add-cart-btn" ${outOfStock ? 'disabled' : ''} onclick="window.addToCart('${p.id}')">${outOfStock ? 'Out of Stock' : 'Add to Cart'}</button>
         </div>
       </div>
     `}).join('');
   }
+
+  window.pickSize = function(productId, size, btn) {
+    selectedSizes[productId] = size;
+
+    const card = btn.closest('.product-card');
+    card.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+
+    const product = PRODUCTS.find(p => p.id === productId);
+    const stockEl = card.querySelector('.stock-label');
+    if (product && stockEl) {
+      const sizeObj = (product.sizes || []).find(s => s.size === size);
+      if (sizeObj) {
+        const out = Number(sizeObj.stock) <= 0;
+        stockEl.textContent = out ? 'Out of Stock' : Number(sizeObj.stock) + ' in stock';
+        stockEl.classList.toggle('out', out);
+      }
+    }
+  };
 
   document.addEventListener('click', e => {
     const catEl = e.target.closest('[data-cat]');
@@ -880,7 +962,42 @@ window.addEventListener('DOMContentLoaded', async () => {
     const product = PRODUCTS.find(p => p.id === id || p.id == id);
     if(!product) return;
 
-    const existing = cart.find(i => i.id === product.id);
+    const hasSizes = !!product.size_type && Array.isArray(product.sizes) && product.sizes.length > 0;
+
+    if (hasSizes) {
+      const size = selectedSizes[id];
+      if (!size) { showToast(`Please select a ${product.size_type === 'ring' ? 'ring' : 'bangle'} size`); return; }
+
+      const sizeObj = product.sizes.find(s => s.size === size);
+      const sizeStock = sizeObj ? Number(sizeObj.stock) : 0;
+      if (sizeStock <= 0) { showToast('Out of stock in this size'); return; }
+
+      const existing = cart.find(i => i.id === product.id && i.size === size);
+      const currentQty = existing ? existing.qty : 0;
+      if (currentQty + 1 > sizeStock) { showToast(`Only ${sizeStock} in stock`); return; }
+
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        const imgUrl = product.image1 || product.image_url || product.imageUrl;
+        cart.push({ id: product.id, name: product.name, price: product.price, image: imgUrl, qty: 1, size });
+      }
+
+      saveCart();
+      renderCart();
+      openCart();
+      showToast(`Added to bag — Size ${size}`);
+      return;
+    }
+
+    const hasStock = product.stock !== undefined && product.stock !== null && product.stock !== '';
+    const stockNum = hasStock ? Number(product.stock) : Infinity;
+    if(hasStock && stockNum <= 0){ showToast('Out of stock'); return; }
+
+    const existing = cart.find(i => i.id === product.id && !i.size);
+    const currentQty = existing ? existing.qty : 0;
+    if(hasStock && currentQty + 1 > stockNum){ showToast(`Only ${stockNum} in stock`); return; }
+
     if(existing) {
         existing.qty += 1;
     } else {
@@ -894,19 +1011,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     showToast('Added to bag');
   }
 
-  window.changeQty = function(id, delta) {
-    const item = cart.find(i => i.id === id || i.id == id);
+  window.changeQty = function(id, size, delta) {
+    const item = cart.find(i => (i.id === id || i.id == id) && (i.size || null) === (size || null));
     if(!item) return;
     item.qty += delta;
     if(item.qty <= 0) {
-        cart = cart.filter(i => i.id !== id && i.id != id);
+        cart = cart.filter(i => !((i.id === id || i.id == id) && (i.size || null) === (size || null)));
     }
     saveCart();
     renderCart();
   }
 
-  window.removeItem = function(id) {
-    cart = cart.filter(i => i.id !== id && i.id != id);
+  window.removeItem = function(id, size) {
+    cart = cart.filter(i => !((i.id === id || i.id == id) && (i.size || null) === (size || null)));
     saveCart();
     renderCart();
   }
@@ -929,27 +1046,30 @@ window.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    cartItemsEl.innerHTML = cart.map(item => `
+    cartItemsEl.innerHTML = cart.map(item => {
+      const sizeArg = item.size ? `'${item.size}'` : 'null';
+      return `
         <div class="cart-line">
           <img src="${item.image || 'https://placehold.co/70x88/eee/999'}" alt="${item.name}">
           <div class="cart-line-info">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-              <h4 style="margin-right: 1rem;">${item.name}</h4>
-              <button onclick="window.removeItem('${item.id}')" style="color:var(--charcoal-soft); padding:0; display:flex; align-items:center;" aria-label="Remove item">
+              <h4 style="margin-right: 1rem;">${item.name}${item.size ? ` <span style="font-weight:400; font-size:.8em; color:var(--charcoal-soft);">(Size ${item.size})</span>` : ''}</h4>
+              <button onclick="window.removeItem('${item.id}', ${sizeArg})" style="color:var(--charcoal-soft); padding:0; display:flex; align-items:center;" aria-label="Remove item">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
               </button>
             </div>
             <div class="cart-line-bottom">
               <div class="qty-control">
-                <button onclick="window.changeQty('${item.id}', -1)">−</button>
+                <button onclick="window.changeQty('${item.id}', ${sizeArg}, -1)">−</button>
                 <span>${item.qty}</span>
-                <button onclick="window.changeQty('${item.id}', 1)">+</button>
+                <button onclick="window.changeQty('${item.id}', ${sizeArg}, 1)">+</button>
               </div>
               <span style="font-size:.85rem; font-weight:700;">${formatINR(item.price * item.qty)}</span>
             </div>
           </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   document.getElementById('checkoutBtn').addEventListener('click', () => {
