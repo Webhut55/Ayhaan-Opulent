@@ -309,14 +309,6 @@
     font-size:.6rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
     padding:.35rem .7rem; border-radius:20px; border:1px solid var(--gold); z-index:2;
   }
-  .quick-add{
-    position:absolute; left:0; right:0; bottom:0; background:var(--ink); color:var(--off-white);
-    text-align:center; padding:.85rem; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; font-weight:600;
-    transform:translateY(100%); transition:transform .3s var(--ease), background .2s; z-index:2;
-    border-radius:0 0 var(--radius-m) var(--radius-m);
-  }
-  .product-card:hover .quick-add{transform:translateY(0);}
-  .quick-add:hover{background:var(--gold-deep);}
   .product-info{padding-top:.9rem;}
   .product-info .cat{font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-deep); font-weight:700; margin-bottom:.3rem;}
   .product-info h3{font-family:var(--serif); font-weight:500; font-size:1rem; margin-bottom:.4rem; line-height:1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
@@ -922,7 +914,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         <div class="product-media">
           <span class="badge-pill">Anti-Tarnish</span>
           <img src="${imgUrl}" alt="${p.name}" loading="lazy">
-          <button class="quick-add" ${outOfStock ? 'disabled' : ''} onclick="window.addToCart('${p.id}')">${outOfStock ? 'Out of Stock' : '+ Add to Bag'}</button>
         </div>
         <div class="product-info">
           <div class="cat">${p.category || 'Collection'}</div>
