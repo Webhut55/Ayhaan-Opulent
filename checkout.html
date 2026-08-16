@@ -764,12 +764,14 @@
         const stateInput = document.getElementById('shipState').value.trim();
         const isKerala = stateInput.toLowerCase().includes('kerala');
         
-        // Calculate total weight in KG (defaults to 1 kg per item if weight is unassigned)
+        // Calculate total weight in KG (defaults to 50 pieces = 1kg, i.e. 0.02kg per item, if weight is unassigned)
+        const PIECES_PER_KG = 50;
+        const DEFAULT_PIECE_WEIGHT_KG = 1 / PIECES_PER_KG;
         let totalWeightKg = 0;
         cart.forEach(item => {
           let w = parseFloat(item.weight);
           if (!w || isNaN(w) || w <= 0) {
-            w = 1; // Default 1 kg per piece/item
+            w = DEFAULT_PIECE_WEIGHT_KG; // Default: 50 pieces = 1kg
           } else if (w > 20) {
             w = w / 1000; // Convert grams to KG if value > 20
           }
