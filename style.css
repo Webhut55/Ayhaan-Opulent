@@ -199,49 +199,79 @@ nav ul li a:hover { color: var(--primary-gold); }
 
 /* ============ Products ============ */
 .products-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 2rem; padding: 0 5%; margin-bottom: 4rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.85rem, 2vw, 2rem);
+  padding: 0 clamp(1rem, 4%, 3rem);
+  margin-bottom: 4rem;
 }
+@media (min-width: 640px)  { .products-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 980px)  { .products-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1280px) { .products-grid { grid-template-columns: repeat(5, 1fr); } }
+
 .product-card {
   background: var(--white); text-align: left; overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 12px; display: flex; flex-direction: column;
-  opacity: 0; transform: translateY(14px); animation: cardIn 0.5s ease forwards;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: 10px; display: flex; flex-direction: column;
+  /* Skip layout/paint work for cards below the fold — big win for load speed on long grids */
+  content-visibility: auto;
+  contain-intrinsic-size: 340px 420px;
+  opacity: 0; transform: translateY(10px);
+  animation: cardIn 0.4s ease forwards;
+  animation-delay: calc(var(--i, 0) * 40ms);
 }
+/* Cap the stagger so a huge grid doesn't leave late cards waiting to appear */
+.product-card:nth-child(n+10) { animation-delay: 360ms; }
 @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
-.product-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-5px); }
+@media (prefers-reduced-motion: reduce) {
+  .product-card { animation: none; opacity: 1; transform: none; }
+  .product-card, .product-image, .btn-primary, .btn-add-cart { transition: none !important; }
+}
 
-.product-image-wrap { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: #f2ede2; }
+.product-card:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.1); transform: translateY(-4px); }
+
+.product-image-wrap {
+  position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden;
+  background: linear-gradient(110deg, #f2ede2 30%, #f8f4ea 45%, #f2ede2 60%);
+  background-size: 200% 100%; animation: imgShimmer 1.6s ease-in-out infinite;
+}
+.product-image-wrap:has(img[src]) { animation: none; background: #f2ede2; }
+@keyframes imgShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 .product-image {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: transform 0.5s ease;
+  transition: transform 0.4s ease;
 }
-.product-card:hover .product-image { transform: scale(1.05); }
+.product-card:hover .product-image { transform: scale(1.06); }
 
 /* Badge over the image, e.g. "ANTI-TARNISH" */
 .product-badge {
-  position: absolute; top: 10px; left: 10px; z-index: 2;
+  position: absolute; top: 8px; left: 8px; z-index: 2;
   background: rgba(255,255,255,0.95); color: var(--secondary-gold);
   border: 1px solid var(--primary-gold);
-  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 5px 10px; border-radius: 30px; white-space: nowrap;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 30px; white-space: nowrap;
 }
 
-.product-info { padding: 12px 14px 14px; display: flex; flex-direction: column; flex: 1; }
+.product-info { padding: 10px 12px 12px; display: flex; flex-direction: column; flex: 1; }
 
 /* Small category/collection pills, e.g. "PENDANTS, TULIP COLLECTIONS" */
-.product-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.product-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px; }
 .product-tag {
-  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   color: var(--secondary-gold); background: #f7f0dd; border: 1px solid var(--border);
-  padding: 2px 7px; border-radius: 6px; line-height: 1.5;
+  padding: 2px 6px; border-radius: 6px; line-height: 1.5;
 }
 
 .product-name {
-  font-size: 0.95rem; line-height: 1.3; margin-bottom: 4px;
+  font-size: clamp(0.82rem, 1.6vw, 0.98rem); line-height: 1.3; margin-bottom: 4px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.product-price { color: var(--primary-gold); font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
+
+.product-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+.product-price { color: var(--primary-gold); font-weight: 700; font-size: clamp(0.85rem, 1.6vw, 1.05rem); }
+.product-price-original { color: var(--text-light); font-size: 0.78rem; text-decoration: line-through; }
+
 .product-desc {
   font-size: 0.85rem; color: var(--text-light); margin-bottom: 15px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -251,7 +281,7 @@ nav ul li a:hover { color: var(--primary-gold); }
 .product-card .btn-primary,
 .product-card .btn-add-cart {
   margin-top: auto; width: 100%; box-sizing: border-box;
-  padding: 10px 12px; font-size: 0.72rem; letter-spacing: 0.06em;
+  padding: 9px 10px; font-size: 0.68rem; letter-spacing: 0.06em;
   white-space: normal; text-align: center; border-radius: 6px;
 }
 .product-card .btn-primary:active,
@@ -445,20 +475,4 @@ footer { background: var(--black); color: var(--white); padding: 3.5rem 5% 2.5re
 
   .filter-bar { padding: 0 4%; gap: 8px; margin-bottom: 1.5rem; }
   .filter-btn { padding: 6px 16px; font-size: 0.78rem; }
-
-  /* Clean, evenly-spaced 2-up grid — no more cropped/peeking cards */
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.85rem;
-    padding: 0 4%;
-    margin-bottom: 2.5rem;
-  }
-  .product-card { border-radius: 10px; }
-  .product-info { padding: 10px 10px 12px; }
-  .product-badge { font-size: 0.55rem; padding: 4px 8px; top: 8px; left: 8px; }
-  .product-tag { font-size: 0.56rem; padding: 2px 6px; }
-  .product-name { font-size: 0.82rem; }
-  .product-price { font-size: 0.88rem; margin-bottom: 8px; }
-  .product-card .btn-primary,
-  .product-card .btn-add-cart { font-size: 0.62rem; padding: 9px 6px; }
 }
