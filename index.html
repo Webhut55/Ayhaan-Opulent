@@ -7,6 +7,8 @@
 <title>AYHAAN OPULENT — Fine Anti-Tarnish Jewelry</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://orjxoslyjonedljqnzgu.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://orjxoslyjonedljqnzgu.supabase.co">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -299,7 +301,12 @@
     display:grid; grid-template-columns:repeat(4, 1fr); gap:1.6rem;
     max-width:1400px; margin:0 auto;
   }
-  .product-card{position:relative; background:var(--card-white); border-radius:var(--radius-m); transition:transform .3s var(--ease), box-shadow .3s var(--ease);}
+  .product-card{
+    position:relative; background:var(--card-white); border-radius:var(--radius-m);
+    display:flex; flex-direction:column; height:100%;
+    transition:transform .3s var(--ease), box-shadow .3s var(--ease);
+    content-visibility:auto; contain-intrinsic-size:320px 430px;
+  }
   .product-card:hover{transform:translateY(-4px); box-shadow:var(--shadow-card-hover);}
   .product-media{position:relative; aspect-ratio:4/5; overflow:hidden; background:var(--off-white); border:1px solid var(--line); border-radius:var(--radius-m);}
   .product-media img{width:100%; height:100%; object-fit:cover; transition:transform .5s var(--ease);}
@@ -309,9 +316,16 @@
     font-size:.6rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
     padding:.35rem .7rem; border-radius:20px; border:1px solid var(--gold); z-index:2;
   }
-  .product-info{padding-top:.9rem;}
-  .product-info .cat{font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-deep); font-weight:700; margin-bottom:.3rem;}
-  .product-info h3{font-family:var(--serif); font-weight:500; font-size:1rem; margin-bottom:.4rem; line-height:1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+  .product-info{padding-top:.9rem; display:flex; flex-direction:column; flex:1;}
+  .product-info .cat{
+    font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-deep); font-weight:700; margin-bottom:.3rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .product-info h3{
+    font-family:var(--serif); font-weight:500; font-size:1rem; margin-bottom:.4rem; line-height:1.35;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    min-height:2.7em;
+  }
   .price-row{display:flex; align-items:baseline; gap:.55rem;}
   .price-now{font-size:.95rem; font-weight:700;}
   .stock-label{font-size:.68rem; color:var(--charcoal-soft); font-weight:600; margin-top:.35rem;}
@@ -327,7 +341,7 @@
   .size-chip.active{background:var(--ink); border-color:var(--ink); color:var(--off-white);}
   .size-chip.disabled, .size-chip:disabled{opacity:.35; text-decoration:line-through; cursor:not-allowed; pointer-events:none;}
   .add-cart-btn{
-    display:block; width:100%; margin-top:.75rem;
+    display:block; width:100%; margin-top:auto; padding-top:.75rem;
     background:var(--ink); color:var(--off-white); text-align:center;
     padding:.75rem; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; font-weight:600;
     border-radius:var(--radius-s); transition:background .2s var(--ease), transform .2s var(--ease);
@@ -453,7 +467,7 @@
     .stat-grid{grid-template-columns:repeat(2,1fr);}
     .stat-item{border-right:none; border-bottom:1px solid rgba(255,255,255,.15); padding-bottom:1.2rem;}
     .collections-grid{grid-template-columns:1fr 1fr;}
-    .product-grid{grid-template-columns:repeat(2,1fr); gap:1.2rem 1rem;}
+    .product-grid{grid-template-columns:repeat(2,1fr); gap:.9rem .8rem;}
     .care-about-grid{grid-template-columns:1fr; gap:3rem;}
     .testimonial-cta-grid{grid-template-columns:1fr; }
     .testimonial-divider{display:none;}
@@ -748,14 +762,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     }, 150);
   }
 
+  // Must be declared before the try block below, since it calls renderProducts()
+  // which reads/increments this. (It's `let`, so referencing it before this line
+  // executes throws a TDZ ReferenceError.)
+  let renderToken = 0;
+
   try {
     const [heroRes, catRes, prodRes] = await Promise.all([
-      supabaseClient.from('hero_slides').select('*'),
-      supabaseClient.from('categories').select('*'),
-      supabaseClient.from('products').select('*')
+      supabaseClient.from('hero_slides').select('id,title,subtitle,image_url'),
+      supabaseClient.from('categories').select('id,name,image_url'),
+      // NOTE: image1 is currently unused/empty for every product — the real
+      // image data (storage URLs, and for some older rows a base64 blob) lives
+      // in image_url. Fetch that instead so product images actually render.
+      supabaseClient.from('products').select('id,name,price,category,image1,image_url,stock,size_type,sizes')
     ]);
 
-    if (!heroRes.error && heroRes.data && heroRes.data.length > 0) {
+    if (heroRes.data && heroRes.data.length > 0) {
       HERO_SLIDES = heroRes.data;
       const container = document.getElementById('heroContainer');
       let dotsHTML = '<div class="hero-dots">';
@@ -782,7 +804,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       initSlider();
     }
 
-    if (!catRes.error && catRes.data) {
+    if (catRes.data && catRes.data.length > 0) {
       CATEGORIES = catRes.data;
       let mainNav = document.getElementById('mainNav');
       let catScroll = document.getElementById('catScroll');
@@ -810,18 +832,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       catScroll.innerHTML = cardsHTML;
     }
 
-    if (heroRes.error) console.error("Hero slides fetch error:", heroRes.error.message);
-    if (catRes.error) console.error("Categories fetch error:", catRes.error.message);
-    if (prodRes.error) {
-      console.error("Products fetch error:", prodRes.error.message);
-      if (prodRes.error.message.includes('timeout') || prodRes.error.message.includes('canceling statement') || prodRes.error.message.includes('500')) {
-        startSilentDatabaseOptimization();
-      }
-    }
+    if (heroRes.error) console.warn("Hero slides fetch warning:", heroRes.error);
+    if (catRes.error) console.warn("Categories fetch warning:", catRes.error);
+    if (prodRes.error) console.warn("Products fetch warning:", prodRes.error);
 
-    if (!prodRes.error && prodRes.data) {
+    if (prodRes.data && prodRes.data.length > 0) {
       PRODUCTS = prodRes.data;
       renderProducts('all');
+    } else if (prodRes.error) {
+      console.error("Products failed to load:", prodRes.error.message);
     }
   } catch (err) {
     console.error("Data fetch exception:", err);
@@ -860,60 +879,46 @@ window.addEventListener('DOMContentLoaded', async () => {
   function formatINR(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
 
   // RESTORED: the renderProducts function block that was accidentally deleted
-  function renderProducts(filterCat) {
-    const grid = document.getElementById('productGrid');
-    const title = document.getElementById('collectionTitle');
-    if (!grid) return;
+  function buildProductCardHTML(p) {
+    // image_url holds the real image data (storage URL or legacy base64 blob);
+    // image1 is a newer column that isn't populated yet, kept as a fallback.
+    const imgUrl = p.image_url || p.image1 || 'https://placehold.co/600x750/FDFBF7/636B2F?text=Image';
 
-    if (title) {
-      title.textContent = filterCat === 'all' ? 'All Collections' : filterCat;
+    const hasSizes = !!p.size_type && Array.isArray(p.sizes) && p.sizes.length > 0;
+    let outOfStock, stockHTML, sizeBlockHTML = '';
+
+    if (hasSizes) {
+      outOfStock = p.sizes.every(s => Number(s.stock) <= 0);
+
+      const chipsHTML = p.sizes.map(s => {
+        const sOut = Number(s.stock) <= 0;
+        const isActive = selectedSizes[p.id] === s.size;
+        return `<button type="button" class="size-chip${sOut ? ' disabled' : ''}${isActive ? ' active' : ''}" ${sOut ? 'disabled' : ''} onclick="window.pickSize('${p.id}','${s.size}', this)">${s.size}</button>`;
+      }).join('');
+
+      sizeBlockHTML = `
+        <div class="size-label">${p.size_type === 'ring' ? 'Ring Size' : 'Bangle Size'}</div>
+        <div class="size-select">${chipsHTML}</div>`;
+
+      const chosen = selectedSizes[p.id];
+      const chosenSize = chosen ? p.sizes.find(s => s.size === chosen) : null;
+      stockHTML = chosenSize
+        ? `<div class="stock-label${Number(chosenSize.stock) <= 0 ? ' out' : ''}">${Number(chosenSize.stock) <= 0 ? 'Out of Stock' : Number(chosenSize.stock) + ' in stock'}</div>`
+        : `<div class="stock-label">${outOfStock ? 'Out of Stock — all sizes' : 'Select a size'}</div>`;
+    } else {
+      const hasStock = p.stock !== undefined && p.stock !== null && p.stock !== '';
+      const stockNum = hasStock ? Number(p.stock) : null;
+      outOfStock = hasStock && stockNum <= 0;
+      stockHTML = hasStock
+        ? `<div class="stock-label${outOfStock ? ' out' : ''}">${outOfStock ? 'Out of Stock' : stockNum + ' in stock'}</div>`
+        : '';
     }
 
-    const filtered = filterCat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filterCat);
-
-    if (filtered.length === 0) {
-      grid.innerHTML = '<div class="empty-msg">No products available in this collection yet.</div>';
-      return;
-    }
-
-    grid.innerHTML = filtered.map(p => {
-      const imgUrl = p.image1 || p.image_url || p.imageUrl || 'https://placehold.co/600x750/FDFBF7/636B2F?text=Image';
-
-      const hasSizes = !!p.size_type && Array.isArray(p.sizes) && p.sizes.length > 0;
-      let outOfStock, stockHTML, sizeBlockHTML = '';
-
-      if (hasSizes) {
-        outOfStock = p.sizes.every(s => Number(s.stock) <= 0);
-
-        const chipsHTML = p.sizes.map(s => {
-          const sOut = Number(s.stock) <= 0;
-          const isActive = selectedSizes[p.id] === s.size;
-          return `<button type="button" class="size-chip${sOut ? ' disabled' : ''}${isActive ? ' active' : ''}" ${sOut ? 'disabled' : ''} onclick="window.pickSize('${p.id}','${s.size}', this)">${s.size}</button>`;
-        }).join('');
-
-        sizeBlockHTML = `
-          <div class="size-label">${p.size_type === 'ring' ? 'Ring Size' : 'Bangle Size'}</div>
-          <div class="size-select">${chipsHTML}</div>`;
-
-        const chosen = selectedSizes[p.id];
-        const chosenSize = chosen ? p.sizes.find(s => s.size === chosen) : null;
-        stockHTML = chosenSize
-          ? `<div class="stock-label${Number(chosenSize.stock) <= 0 ? ' out' : ''}">${Number(chosenSize.stock) <= 0 ? 'Out of Stock' : Number(chosenSize.stock) + ' in stock'}</div>`
-          : `<div class="stock-label">${outOfStock ? 'Out of Stock — all sizes' : 'Select a size'}</div>`;
-      } else {
-        const hasStock = p.stock !== undefined && p.stock !== null && p.stock !== '';
-        const stockNum = hasStock ? Number(p.stock) : null;
-        outOfStock = hasStock && stockNum <= 0;
-        stockHTML = hasStock
-          ? `<div class="stock-label${outOfStock ? ' out' : ''}">${outOfStock ? 'Out of Stock' : stockNum + ' in stock'}</div>`
-          : '';
-      }
-
-      return `
+    return `
       <div class="product-card" data-id="${p.id}">
         <div class="product-media">
           <span class="badge-pill">Anti-Tarnish</span>
-          <img src="${imgUrl}" alt="${p.name}" loading="lazy">
+          <img src="${imgUrl}" alt="${p.name}" loading="lazy" decoding="async">
         </div>
         <div class="product-info">
           <div class="cat">${p.category || 'Collection'}</div>
@@ -926,7 +931,55 @@ window.addEventListener('DOMContentLoaded', async () => {
           <button class="add-cart-btn" ${outOfStock ? 'disabled' : ''} onclick="window.addToCart('${p.id}')">${outOfStock ? 'Out of Stock' : 'Add to Cart'}</button>
         </div>
       </div>
-    `}).join('');
+    `;
+  }
+
+  // Renders the first batch synchronously (fast first paint), then appends the
+  // rest in small chunks on idle/animation frames so a large catalog never
+  // blocks the main thread or delays what's visible above the fold.
+  function renderProducts(filterCat) {
+    const grid = document.getElementById('productGrid');
+    const title = document.getElementById('collectionTitle');
+    if (!grid) return;
+
+    if (title) {
+      title.textContent = filterCat === 'all' ? 'All Collections' : filterCat;
+    }
+
+    const filtered = filterCat === 'all'
+      ? PRODUCTS
+      : PRODUCTS.filter(p => (p.category || '')
+          .split(',')
+          .map(c => c.trim().toLowerCase())
+          .includes(filterCat.trim().toLowerCase()));
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="empty-msg">No products available in this collection yet.</div>';
+      return;
+    }
+
+    const myToken = ++renderToken; // cancels any in-flight chunked render from a previous filter click
+    const FIRST_BATCH = 24;
+    const CHUNK_SIZE = 30;
+
+    grid.innerHTML = filtered.slice(0, FIRST_BATCH).map(buildProductCardHTML).join('');
+
+    let i = FIRST_BATCH;
+    function renderNextChunk() {
+      if (myToken !== renderToken || i >= filtered.length) return;
+      const frag = document.createDocumentFragment();
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = filtered.slice(i, i + CHUNK_SIZE).map(buildProductCardHTML).join('');
+      while (wrapper.firstChild) frag.appendChild(wrapper.firstChild);
+      grid.appendChild(frag);
+      i += CHUNK_SIZE;
+      if (i < filtered.length) {
+        (window.requestIdleCallback || window.requestAnimationFrame)(renderNextChunk);
+      }
+    }
+    if (i < filtered.length) {
+      (window.requestIdleCallback || window.requestAnimationFrame)(renderNextChunk);
+    }
   }
 
   window.pickSize = function(productId, size, btn) {
@@ -979,7 +1032,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (existing) {
         existing.qty += 1;
       } else {
-        const imgUrl = product.image1 || product.image_url || product.imageUrl;
+        const imgUrl = product.image_url || product.image1 || product.imageUrl;
         cart.push({ id: product.id, name: product.name, price: product.price, image: imgUrl, qty: 1, size });
       }
 
@@ -1001,7 +1054,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(existing) {
         existing.qty += 1;
     } else {
-        const imgUrl = product.image1 || product.image_url || product.imageUrl;
+        const imgUrl = product.image_url || product.image1 || product.imageUrl;
         cart.push({ id: product.id, name: product.name, price: product.price, image: imgUrl, qty: 1 });
     }
 
@@ -1103,64 +1156,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
   }
 
-  async function startSilentDatabaseOptimization() {
-    if (window.isOptimizingDB) return;
-    window.isOptimizingDB = true;
-    console.log("Starting silent background database optimization...");
-    
-    try {
-      const { data: ids, error: idError } = await supabaseClient.from('products').select('id');
-      if (idError) throw idError;
-      if (!ids || ids.length === 0) return;
-
-      for (const item of ids) {
-        const { data: prod, error: prodError } = await supabaseClient.from('products')
-          .select('id, name, image_url')
-          .eq('id', item.id)
-          .single();
-          
-        if (prodError) continue;
-
-        if (prod.image_url && prod.image_url.startsWith('data:image/') && prod.image_url.length > 300000) {
-          try {
-            const compressed = await compressBase64(prod.image_url, 1000, 0.72);
-            await supabaseClient.from('products')
-              .update({ image_url: compressed })
-              .eq('id', prod.id);
-          } catch (compressErr) {
-            console.error(`Failed to compress image for ${prod.id}:`, compressErr);
-          }
-        }
-      }
-      console.log("Silent background database optimization complete.");
-      window.isOptimizingDB = false;
-      loadData();
-    } catch (err) {
-      console.error("Silent optimization failed:", err);
-      window.isOptimizingDB = false;
-    }
-  }
-
-  function compressBase64(base64Str, maxDim = 1000, quality = 0.72) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = function() {
-        let w = img.width, h = img.height;
-        if (w > maxDim || h > maxDim) {
-          if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
-          else { w = Math.round(w * maxDim / h); h = maxDim; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.onerror = reject;
-      img.src = base64Str;
-    });
-  }
+  // REMOVED: startSilentDatabaseOptimization completely.
+  // Images are read from image_url (see product fetch above / buildProductCardHTML).
 
   renderCart();
 });
